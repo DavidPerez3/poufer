@@ -1,0 +1,20 @@
+{
+  "id": "/poufer/",
+  "name": "Poufer — Cuida a Mapofer",
+  "short_name": "Poufer",
+  "description": "Mascota virtual humorística: cuida a Mapofer.",
+  "start_url": "/poufer/",
+  "scope": "/poufer/",
+  "display": "standalone",
+  "background_color": "#10081f",
+  "theme_color": "#10081f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/poufer/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
