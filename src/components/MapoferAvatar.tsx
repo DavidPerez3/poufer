@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, StyleSheet, Text, View } from 'react-native';
 
 import type { MapoferAppearance } from '@/domain/mapoferAppearance';
 import { colors } from '@/theme/colors';
@@ -10,6 +10,7 @@ type Props = {
 };
 
 type AlteredCue = 'idle' | 'jaw' | 'tongue' | 'head';
+const useNativeDriver = Platform.OS !== 'web';
 
 export function MapoferAvatar({ appearance, compact = false }: Props) {
   const [cue, setCue] = useState<AlteredCue>('idle');
@@ -33,9 +34,9 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
 
       if (nextCue === 'head') {
         Animated.sequence([
-          Animated.timing(nervousOffset, { toValue: -4, duration: 90, useNativeDriver: true }),
-          Animated.timing(nervousOffset, { toValue: 4, duration: 90, useNativeDriver: true }),
-          Animated.timing(nervousOffset, { toValue: 0, duration: 90, useNativeDriver: true }),
+          Animated.timing(nervousOffset, { toValue: -4, duration: 90, useNativeDriver }),
+          Animated.timing(nervousOffset, { toValue: 4, duration: 90, useNativeDriver }),
+          Animated.timing(nervousOffset, { toValue: 0, duration: 90, useNativeDriver }),
         ]).start();
       }
     };
