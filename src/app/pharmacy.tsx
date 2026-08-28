@@ -31,7 +31,7 @@ export default function PharmacyScreen() {
     const result = state.useItem(itemId);
     setFeedback(
       result === 'used'
-        ? `${item.name} usada: Mapofer se está poniendo fino.`
+        ? `${item.name}: Mapofer se está poniendo fino.`
         : `No queda ${item.name.toLowerCase()}. La reposición llegará con la tienda.`,
     );
   };
