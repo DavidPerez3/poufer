@@ -12,7 +12,7 @@ Mascota virtual humorística basada en Mapofer. Una única base de código para 
 - AsyncStorage
 - GitHub Pages para la PWA
 
-## Fase 0.1 — implementada
+## Fase 0.1 — estable
 
 La primera base jugable incluye:
 
@@ -30,7 +30,17 @@ La primera base jugable incluye:
 - manifiesto PWA, iconos raster/maskable, icono de iOS y service worker;
 - export estático compatible con GitHub Pages.
 
-Farmacia y Bar aparecen como próximos módulos, pero todavía no forman parte de la lógica de esta fase.
+## Fase 0.2 — Farmapofer
+
+- ruta de Farmacia integrada en Expo Router;
+- catálogo genérico de objetos y efectos mediante `useItem(itemId)`;
+- Pastilla y Pollo como objetos ficticios/cartoon;
+- inventario local inicial de pruebas, sin adelantar la tienda de la fase 0.7;
+- Ansia, Alterado, Sudor y Energía persistentes;
+- estado `FINO` y ojos dilatados derivados del estado del personaje;
+- animaciones alternas de mandíbula, lengua, cabeza y sudor;
+- efectos activos con duración y progreso offline;
+- migración automática de las partidas de fase 0.1.
 
 ## Desarrollo local
 
@@ -102,4 +112,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.2: Farmacia, estados alterados iniciales y sistema extensible de objetos/efectos.
+Fase 0.3: Bar, alcohol, borrachera y resaca reutilizando el catálogo genérico de objetos.

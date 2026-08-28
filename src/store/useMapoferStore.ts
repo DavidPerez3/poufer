@@ -5,9 +5,17 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 
 import { BASIC_ACTIONS, type BasicActionId } from '@/domain/gameBalance';
 import { advanceNeeds, applyNeedEffects } from '@/domain/gameEngine';
-import { INITIAL_NEEDS, normalizeNeeds, type MapoferNeeds } from '@/domain/mapofer';
+import { consumeItem } from '@/domain/itemEngine';
+import {
+  INITIAL_INVENTORY,
+  ITEMS,
+  type ActiveItemEffect,
+  type Inventory,
+  type ItemId,
+} from '@/domain/items';
+import { INITIAL_VITALS, normalizeVitals, type MapoferVitals } from '@/domain/mapofer';
 
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -15,13 +23,43 @@ const staticRenderStorage: StateStorage = {
   removeItem: () => undefined,
 };
 
-type MapoferStore = MapoferNeeds & {
+function normalizeActiveEffects(value: unknown): ActiveItemEffect[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((candidate): ActiveItemEffect[] => {
+    if (!candidate || typeof candidate !== 'object') return [];
+    const effect = candidate as Partial<ActiveItemEffect>;
+    if (
+      (effect.itemId !== 'pill' && effect.itemId !== 'chicken') ||
+      !Number.isFinite(effect.startedAt) ||
+      !Number.isFinite(effect.expiresAt)
+    ) {
+      return [];
+    }
+
+    const item = ITEMS[effect.itemId];
+    return [{
+      itemId: effect.itemId,
+      animation: item.animation,
+      startedAt: effect.startedAt!,
+      expiresAt: effect.expiresAt!,
+      alteredIntensity: item.activeEffect.alteredIntensity,
+    }];
+  });
+}
+
+export type UseItemResult = 'used' | 'out-of-stock';
+
+type MapoferStore = MapoferVitals & {
   mapocoins: number;
+  inventory: Inventory;
+  activeEffects: ActiveItemEffect[];
   lastUpdatedAt: number;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
   applyElapsedTime: (now?: number) => void;
   performBasicAction: (actionId: BasicActionId, now?: number) => void;
+  useItem: (itemId: ItemId, now?: number) => UseItemResult;
   eat: () => void;
   shower: () => void;
   rest: () => void;
@@ -34,15 +72,20 @@ const touchTime = () => Date.now();
 export const useMapoferStore = create<MapoferStore>()(
   persist(
     (set, get) => ({
-      ...INITIAL_NEEDS,
+      ...INITIAL_VITALS,
       mapocoins: 0,
+      inventory: INITIAL_INVENTORY,
+      activeEffects: [],
       lastUpdatedAt: touchTime(),
       hasHydrated: false,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
 
       applyElapsedTime: (now = touchTime()) => {
-        set((state) => advanceNeeds(state, now));
+        set((state) => ({
+          ...advanceNeeds(state, now),
+          activeEffects: state.activeEffects.filter((effect) => effect.expiresAt > now),
+        }));
       },
 
       performBasicAction: (actionId, now = touchTime()) =>
@@ -54,6 +97,17 @@ export const useMapoferStore = create<MapoferStore>()(
           };
         }),
 
+      useItem: (itemId, now = touchTime()) => {
+        if (get().inventory[itemId] <= 0) return 'out-of-stock';
+
+        set((state) => {
+          const outcome = consumeItem(state, itemId, now);
+          return outcome.state;
+        });
+
+        return 'used';
+      },
+
       eat: () => get().performBasicAction('eat'),
       shower: () => get().performBasicAction('shower'),
       rest: () => get().performBasicAction('rest'),
@@ -61,8 +115,10 @@ export const useMapoferStore = create<MapoferStore>()(
 
       reset: () =>
         set({
-          ...INITIAL_NEEDS,
+          ...INITIAL_VITALS,
           mapocoins: 0,
+          inventory: INITIAL_INVENTORY,
+          activeEffects: [],
           lastUpdatedAt: touchTime(),
         }),
     }),
@@ -76,18 +132,35 @@ export const useMapoferStore = create<MapoferStore>()(
         hygiene: state.hygiene,
         sleep: state.sleep,
         boredom: state.boredom,
+        craving: state.craving,
+        altered: state.altered,
+        sweat: state.sweat,
+        energy: state.energy,
         mapocoins: state.mapocoins,
+        inventory: state.inventory,
+        activeEffects: state.activeEffects,
         lastUpdatedAt: state.lastUpdatedAt,
       }),
       merge: (persisted, current) => {
         const saved = persisted as Partial<MapoferStore> | undefined;
-        const needs = normalizeNeeds(saved ?? {});
+        const vitals = normalizeVitals(saved ?? {});
+        const savedInventory = saved?.inventory;
+        const inventory: Inventory = {
+          pill: Number.isFinite(savedInventory?.pill)
+            ? Math.max(0, Math.floor(savedInventory!.pill))
+            : INITIAL_INVENTORY.pill,
+          chicken: Number.isFinite(savedInventory?.chicken)
+            ? Math.max(0, Math.floor(savedInventory!.chicken))
+            : INITIAL_INVENTORY.chicken,
+        };
         return {
           ...current,
-          ...needs,
+          ...vitals,
           mapocoins: Number.isFinite(saved?.mapocoins)
             ? Math.max(0, Math.floor(saved!.mapocoins!))
             : current.mapocoins,
+          inventory,
+          activeEffects: normalizeActiveEffects(saved?.activeEffects),
           lastUpdatedAt: Number.isFinite(saved?.lastUpdatedAt)
             ? saved!.lastUpdatedAt!
             : current.lastUpdatedAt,

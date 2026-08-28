@@ -1,19 +1,21 @@
 import Head from 'expo-router/head';
+import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MapoferAvatar } from '@/components/MapoferAvatar';
 import { StatBar } from '@/components/StatBar';
-import { deriveMood, moodLabel } from '@/domain/mapofer';
+import { deriveAppearance, statusLabel } from '@/domain/mapoferAppearance';
 import { useGameClock } from '@/hooks/useGameClock';
 import { useMapoferStore } from '@/store/useMapoferStore';
 import { colors } from '@/theme/colors';
 
 export default function HomeScreen() {
   useGameClock();
+  const router = useRouter();
 
   const state = useMapoferStore();
-  const mood = deriveMood(state);
+  const appearance = deriveAppearance(state, state.activeEffects);
 
   if (!state.hasHydrated) {
     return (
@@ -35,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.1</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.2</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -46,10 +48,10 @@ export default function HomeScreen() {
 
         <View style={styles.statusBadge}>
           <Text style={styles.statusSmall}>ESTADO</Text>
-          <Text style={styles.statusText}>{moodLabel[mood]}</Text>
+          <Text style={styles.statusText}>{statusLabel[appearance.status]}</Text>
         </View>
 
-        <MapoferAvatar mood={mood} />
+        <MapoferAvatar appearance={appearance} />
 
         <View style={styles.statsGrid}>
           <StatBar icon="🍔" label="Hambre" value={state.hunger} />
@@ -66,13 +68,17 @@ export default function HomeScreen() {
           <ActionButton emoji="📺" label="Anime" detail="- aburrimiento" onPress={state.watchAnime} />
         </View>
 
-        <Text style={styles.sectionTitle}>Siguiente en el roadmap</Text>
+        <Text style={styles.sectionTitle}>Zonas de Poufer</Text>
         <View style={styles.lockedRow}>
-          <View style={styles.lockedCard}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/pharmacy')}
+            style={({ pressed }) => [styles.moduleCard, pressed && styles.actionPressed]}
+          >
             <Text style={styles.lockedEmoji}>💊</Text>
             <Text style={styles.lockedTitle}>Farmacia</Text>
-            <Text style={styles.lockedText}>Fase 0.2</Text>
-          </View>
+            <Text style={styles.moduleReady}>ABIERTO</Text>
+          </Pressable>
           <View style={styles.lockedCard}>
             <Text style={styles.lockedEmoji}>🍺</Text>
             <Text style={styles.lockedTitle}>Bar</Text>
@@ -263,6 +269,14 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceSoft,
     opacity: 0.72,
   },
+  moduleCard: {
+    flex: 1,
+    backgroundColor: '#173d32',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.success,
+  },
   lockedEmoji: {
     fontSize: 24,
   },
@@ -274,6 +288,12 @@ const styles = StyleSheet.create({
   lockedText: {
     color: colors.textMuted,
     fontSize: 11,
+    marginTop: 2,
+  },
+  moduleReady: {
+    color: colors.success,
+    fontSize: 11,
+    fontWeight: '900',
     marginTop: 2,
   },
   devReset: {

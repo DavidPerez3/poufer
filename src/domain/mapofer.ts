@@ -14,11 +14,26 @@ export type MapoferNeeds = {
   boredom: number;
 };
 
+export type MapoferVitals = MapoferNeeds & {
+  craving: number;
+  altered: number;
+  sweat: number;
+  energy: number;
+};
+
 export const INITIAL_NEEDS: MapoferNeeds = {
   hunger: 82,
   hygiene: 88,
   sleep: 78,
   boredom: 28,
+};
+
+export const INITIAL_VITALS: MapoferVitals = {
+  ...INITIAL_NEEDS,
+  craving: 12,
+  altered: 0,
+  sweat: 0,
+  energy: 72,
 };
 
 export const clampNeed = (value: number) => Math.max(0, Math.min(100, value));
@@ -29,6 +44,16 @@ export function normalizeNeeds(needs: Partial<MapoferNeeds>): MapoferNeeds {
     hygiene: clampNeed(Number.isFinite(needs.hygiene) ? needs.hygiene! : INITIAL_NEEDS.hygiene),
     sleep: clampNeed(Number.isFinite(needs.sleep) ? needs.sleep! : INITIAL_NEEDS.sleep),
     boredom: clampNeed(Number.isFinite(needs.boredom) ? needs.boredom! : INITIAL_NEEDS.boredom),
+  };
+}
+
+export function normalizeVitals(vitals: Partial<MapoferVitals>): MapoferVitals {
+  return {
+    ...normalizeNeeds(vitals),
+    craving: clampNeed(Number.isFinite(vitals.craving) ? vitals.craving! : INITIAL_VITALS.craving),
+    altered: clampNeed(Number.isFinite(vitals.altered) ? vitals.altered! : INITIAL_VITALS.altered),
+    sweat: clampNeed(Number.isFinite(vitals.sweat) ? vitals.sweat! : INITIAL_VITALS.sweat),
+    energy: clampNeed(Number.isFinite(vitals.energy) ? vitals.energy! : INITIAL_VITALS.energy),
   };
 }
 

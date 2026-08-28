@@ -1,18 +1,22 @@
-import type { MapoferNeeds } from '@/domain/mapofer';
+import type { MapoferVitals } from '@/domain/mapofer';
 
 export const MAX_OFFLINE_HOURS = 48;
 export const GAME_TICK_MS = 30_000;
 
-export const NEED_DECAY_PER_HOUR: Readonly<MapoferNeeds> = {
+export const VITAL_CHANGE_PER_HOUR: Readonly<MapoferVitals> = {
   hunger: 4,
   hygiene: 2,
   sleep: 3,
   boredom: -5,
+  craving: -1,
+  altered: 18,
+  sweat: 8,
+  energy: 2,
 };
 
 export type BasicActionId = 'eat' | 'shower' | 'rest' | 'watchAnime';
 
-export type NeedEffects = Partial<Record<keyof MapoferNeeds, number>>;
+export type NeedEffects = Partial<Record<keyof MapoferVitals, number>>;
 
 export type BasicAction = {
   id: BasicActionId;

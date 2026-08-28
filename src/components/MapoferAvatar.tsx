@@ -1,34 +1,77 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 
-import { MapoferMood } from '@/domain/mapofer';
+import type { MapoferAppearance } from '@/domain/mapoferAppearance';
 import { colors } from '@/theme/colors';
 
 type Props = {
-  mood: MapoferMood;
+  appearance: MapoferAppearance;
+  compact?: boolean;
 };
 
-export function MapoferAvatar({ mood }: Props) {
-  const tired = mood === 'cansado' || mood === 'hecho-polvo';
+type AlteredCue = 'idle' | 'jaw' | 'tongue' | 'head';
+
+export function MapoferAvatar({ appearance, compact = false }: Props) {
+  const [cue, setCue] = useState<AlteredCue>('idle');
+  const nervousOffset = useRef(new Animated.Value(0)).current;
+  const tired = appearance.eyeState === 'tired' || appearance.eyeState === 'drunk';
+  const dilated = appearance.eyeState === 'dilated';
+
+  useEffect(() => {
+    if (!appearance.isAltered) {
+      setCue('idle');
+      nervousOffset.setValue(0);
+      return;
+    }
+
+    const cues: AlteredCue[] = ['jaw', 'idle', 'tongue', 'head', 'idle'];
+    let cueIndex = 0;
+    const playCue = () => {
+      const nextCue = cues[cueIndex % cues.length];
+      cueIndex += 1;
+      setCue(nextCue);
+
+      if (nextCue === 'head') {
+        Animated.sequence([
+          Animated.timing(nervousOffset, { toValue: -4, duration: 90, useNativeDriver: true }),
+          Animated.timing(nervousOffset, { toValue: 4, duration: 90, useNativeDriver: true }),
+          Animated.timing(nervousOffset, { toValue: 0, duration: 90, useNativeDriver: true }),
+        ]).start();
+      }
+    };
+
+    playCue();
+    const interval = setInterval(playCue, appearance.alteredIntensity >= 2 ? 900 : 1_300);
+    return () => clearInterval(interval);
+  }, [appearance.alteredIntensity, appearance.isAltered, nervousOffset]);
 
   return (
-    <View style={styles.stage}>
+    <View style={[styles.stage, compact && styles.stageCompact]}>
       <View style={styles.glow} />
-      <View style={styles.character}>
+      <View style={styles.neonLine} />
+      <Animated.View style={[styles.character, { transform: [{ translateX: nervousOffset }] }] }>
         <View style={styles.head}>
           <View style={styles.hair} />
           <View style={styles.earLeft} />
           <View style={styles.earRight} />
           <View style={styles.eyesRow}>
             <View style={[styles.eye, tired && styles.tiredEye]}>
-              <View style={styles.pupil} />
+              <View style={[styles.pupil, dilated && styles.dilatedPupil]} />
             </View>
             <View style={[styles.eye, tired && styles.tiredEye]}>
-              <View style={styles.pupil} />
+              <View style={[styles.pupil, dilated && styles.dilatedPupil]} />
             </View>
           </View>
           <View style={styles.noseRing} />
           <View style={styles.beard} />
-          <View style={styles.mouth} />
+          <View style={[styles.mouth, cue === 'jaw' && styles.jawMouth]} />
+          {cue === 'tongue' && <View style={styles.tongue} />}
+          {appearance.isSweating && (
+            <>
+              <Text style={styles.sweatLeft}>💧</Text>
+              {appearance.alteredIntensity >= 2 && <Text style={styles.sweatRight}>💧</Text>}
+            </>
+          )}
         </View>
         <View style={styles.neck} />
         <View style={styles.body}>
@@ -38,8 +81,8 @@ export function MapoferAvatar({ mood }: Props) {
             <Text style={styles.bagText}>MF</Text>
           </View>
         </View>
-      </View>
-      <Text style={styles.caption}>Mapofer · sin gafas para ver los estados de los ojos</Text>
+      </Animated.View>
+      {!compact && <Text style={styles.caption}>Sin gafas · los ojos muestran su estado</Text>}
     </View>
   );
 }
@@ -51,6 +94,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
   },
+  stageCompact: {
+    height: 300,
+  },
   glow: {
     position: 'absolute',
     width: 260,
@@ -58,6 +104,15 @@ const styles = StyleSheet.create({
     borderRadius: 130,
     backgroundColor: '#321b58',
     opacity: 0.8,
+  },
+  neonLine: {
+    position: 'absolute',
+    bottom: 30,
+    width: 290,
+    height: 3,
+    borderRadius: 3,
+    backgroundColor: colors.accent,
+    opacity: 0.45,
   },
   character: {
     alignItems: 'center',
@@ -129,6 +184,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#17121d',
   },
+  dilatedPupil: {
+    width: 15,
+    height: 15,
+    borderRadius: 8,
+  },
   noseRing: {
     position: 'absolute',
     top: 87,
@@ -159,6 +219,35 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#6f3e3d',
     zIndex: 2,
+  },
+  jawMouth: {
+    height: 9,
+    width: 30,
+    left: 62,
+    bottom: 28,
+  },
+  tongue: {
+    position: 'absolute',
+    bottom: 20,
+    left: 69,
+    width: 18,
+    height: 17,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    backgroundColor: '#f0749c',
+    zIndex: 4,
+  },
+  sweatLeft: {
+    position: 'absolute',
+    left: 10,
+    top: 73,
+    fontSize: 19,
+  },
+  sweatRight: {
+    position: 'absolute',
+    right: 7,
+    top: 55,
+    fontSize: 16,
   },
   neck: {
     width: 51,
