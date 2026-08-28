@@ -17,7 +17,6 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="manifest" href={`${base}/manifest.webmanifest`} />
         <link rel="icon" href={`${base}/icon.svg`} />
         <link rel="apple-touch-icon" href={`${base}/icons/apple-touch-icon.png`} />
-        <title>Poufer</title>
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: `body { background: #10081f; overscroll-behavior-y: none; }` }} />
       </head>

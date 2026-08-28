@@ -1,3 +1,4 @@
+import Head from 'expo-router/head';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,16 +17,21 @@ export default function HomeScreen() {
 
   if (!state.hasHydrated) {
     return (
-      <View style={styles.loading}>
-        <Text style={styles.logo}>POUFER</Text>
-        <Text style={styles.muted}>Despertando a Mapofer…</Text>
-      </View>
+      <>
+        <PageHead />
+        <View style={styles.loading}>
+          <Text style={styles.logo}>POUFER</Text>
+          <Text style={styles.muted}>Despertando a Mapofer…</Text>
+        </View>
+      </>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <>
+      <PageHead />
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
@@ -77,8 +83,21 @@ export default function HomeScreen() {
         <Pressable onLongPress={state.reset} delayLongPress={900} style={styles.devReset}>
           <Text style={styles.devResetText}>Mantén pulsado aquí para reiniciar el estado de desarrollo</Text>
         </Pressable>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </>
+  );
+}
+
+function PageHead() {
+  return (
+    <Head>
+      <title>POUFER — Cuida a Mapofer</title>
+      <meta
+        name="description"
+        content="Mascota virtual humorística: cuida a Mapofer desde Web, PWA o Android."
+      />
+    </Head>
   );
 }
 
