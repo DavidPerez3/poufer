@@ -70,6 +70,7 @@ export const useMapoferStore = create<MapoferStore>()(
       name: 'poufer-state-v1',
       version: STORAGE_VERSION,
       storage: createJSONStorage(() => (isStaticWebRender ? staticRenderStorage : AsyncStorage)),
+      migrate: (persistedState) => persistedState as MapoferStore,
       partialize: (state) => ({
         hunger: state.hunger,
         hygiene: state.hygiene,
