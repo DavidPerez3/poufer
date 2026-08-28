@@ -21,11 +21,13 @@ La primera base jugable incluye:
 - riñonera/bandolera como parte del diseño del personaje;
 - Hambre, Higiene, Sueño y Aburrimiento;
 - paso del tiempo incluso después de cerrar la app (con límite inicial de 48 h de progreso offline);
+- actualización inmediata al volver del segundo plano;
 - acciones básicas de comer, ducharse, dormir y ver anime;
+- motor de necesidades desacoplado de la interfaz y preparado para efectos configurables;
 - estado general derivado de las necesidades;
-- persistencia local;
+- persistencia local versionada y saneada;
 - Mapocoins preparadas en el modelo de estado;
-- manifiesto PWA y service worker;
+- manifiesto PWA, iconos raster/maskable, icono de iOS y service worker;
 - export estático compatible con GitHub Pages.
 
 Farmacia y Bar aparecen como próximos módulos, pero todavía no forman parte de la lógica de esta fase.
@@ -57,13 +59,21 @@ npm run export:web
 
 Expo genera el resultado en `dist/`.
 
+Para ejecutar de una vez TypeScript, pruebas de dominio, export y validación PWA:
+
+```bash
+npm run check
+```
+
 ## GitHub Pages
 
 El proyecto está configurado para vivir bajo `/poufer`, por lo que la URL prevista es:
 
 `https://davidperez3.github.io/poufer/`
 
-El workflow `.github/workflows/pages.yml` compila y publica automáticamente cada push a `main`.
+El workflow `.github/workflows/pages.yml` instala con `npm ci`, comprueba TypeScript,
+ejecuta las pruebas del motor, exporta, valida el artefacto de GitHub Pages y publica
+automáticamente cada push a `main`.
 
 ### Activación inicial (una sola vez)
 

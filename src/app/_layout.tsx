@@ -10,10 +10,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (Platform.OS !== 'web' || process.env.NODE_ENV !== 'production') return;
 
-    const navigatorLike = (globalThis as any).navigator;
+    if (!('serviceWorker' in navigator)) return;
 
-    navigatorLike?.serviceWorker
-      ?.register(`${GITHUB_PAGES_BASE}/sw.js`, { scope: `${GITHUB_PAGES_BASE}/` })
+    navigator.serviceWorker
+      .register(`${GITHUB_PAGES_BASE}/sw.js`, { scope: `${GITHUB_PAGES_BASE}/` })
       .catch(() => undefined);
   }, []);
 

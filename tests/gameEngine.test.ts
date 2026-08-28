@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { advanceNeeds, applyNeedEffects, type TimedNeeds } from '../src/domain/gameEngine';
+
+const HOUR_MS = 3_600_000;
+
+const healthyState: TimedNeeds = {
+  hunger: 80,
+  hygiene: 80,
+  sleep: 80,
+  boredom: 20,
+  lastUpdatedAt: 1_000,
+};
+
+test('aplica el deterioro proporcional al tiempo transcurrido', () => {
+  const result = advanceNeeds(healthyState, healthyState.lastUpdatedAt + HOUR_MS);
+
+  assert.deepEqual(result, {
+    hunger: 76,
+    hygiene: 78,
+    sleep: 77,
+    boredom: 25,
+    lastUpdatedAt: healthyState.lastUpdatedAt + HOUR_MS,
+  });
+});
+
+test('limita el progreso offline a 48 horas y los stats a 0-100', () => {
+  const result = advanceNeeds(healthyState, healthyState.lastUpdatedAt + 200 * HOUR_MS);
+
+  assert.equal(result.hunger, 0);
+  assert.equal(result.hygiene, 0);
+  assert.equal(result.sleep, 0);
+  assert.equal(result.boredom, 100);
+});
+
+test('no aplica deterioro negativo si el reloj del dispositivo retrocede', () => {
+  const result = advanceNeeds(healthyState, healthyState.lastUpdatedAt - HOUR_MS);
+
+  assert.deepEqual(result, healthyState);
+});
+
+test('sanea valores persistidos inválidos y limita los efectos', () => {
+  const result = applyNeedEffects(
+    { hunger: 95, hygiene: 2, sleep: 80, boredom: 20 },
+    { hunger: 20, hygiene: -20, boredom: -50 },
+  );
+
+  assert.deepEqual(result, { hunger: 100, hygiene: 0, sleep: 80, boredom: 0 });
+});

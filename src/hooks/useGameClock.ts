@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 
+import { GAME_TICK_MS } from '@/domain/gameBalance';
 import { useMapoferStore } from '@/store/useMapoferStore';
-
-const TICK_MS = 30_000;
 
 export function useGameClock() {
   const hasHydrated = useMapoferStore((state) => state.hasHydrated);
@@ -12,8 +12,14 @@ export function useGameClock() {
     if (!hasHydrated) return;
 
     applyElapsedTime(Date.now());
-    const timer = setInterval(() => applyElapsedTime(Date.now()), TICK_MS);
+    const timer = setInterval(() => applyElapsedTime(Date.now()), GAME_TICK_MS);
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') applyElapsedTime(Date.now());
+    });
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      subscription.remove();
+    };
   }, [applyElapsedTime, hasHydrated]);
 }

@@ -5,11 +5,19 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "poufer",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "plugins": ["expo-router"],
     "web": {
       "bundler": "metro",
-      "output": "static"
+      "output": "static",
+      "favicon": "./public/icons/icon-192.png"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#10081f"
+      }
     },
     "experiments": {
       "typedRoutes": true,

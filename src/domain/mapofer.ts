@@ -23,6 +23,15 @@ export const INITIAL_NEEDS: MapoferNeeds = {
 
 export const clampNeed = (value: number) => Math.max(0, Math.min(100, value));
 
+export function normalizeNeeds(needs: Partial<MapoferNeeds>): MapoferNeeds {
+  return {
+    hunger: clampNeed(Number.isFinite(needs.hunger) ? needs.hunger! : INITIAL_NEEDS.hunger),
+    hygiene: clampNeed(Number.isFinite(needs.hygiene) ? needs.hygiene! : INITIAL_NEEDS.hygiene),
+    sleep: clampNeed(Number.isFinite(needs.sleep) ? needs.sleep! : INITIAL_NEEDS.sleep),
+    boredom: clampNeed(Number.isFinite(needs.boredom) ? needs.boredom! : INITIAL_NEEDS.boredom),
+  };
+}
+
 export function deriveMood(needs: MapoferNeeds): MapoferMood {
   if (needs.hunger < 18 || needs.hygiene < 15 || needs.sleep < 15) return 'hecho-polvo';
   if (needs.sleep < 32) return 'cansado';
