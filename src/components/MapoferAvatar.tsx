@@ -17,15 +17,18 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
   const nervousOffset = useRef(new Animated.Value(0)).current;
   const tired = appearance.eyeState === 'tired' || appearance.eyeState === 'drunk';
   const dilated = appearance.eyeState === 'dilated';
+  const animatedState = appearance.isAltered || appearance.isDrunk;
 
   useEffect(() => {
-    if (!appearance.isAltered) {
+    if (!animatedState) {
       setCue('idle');
       nervousOffset.setValue(0);
       return;
     }
 
-    const cues: AlteredCue[] = ['jaw', 'idle', 'tongue', 'head', 'idle'];
+    const cues: AlteredCue[] = appearance.isAltered
+      ? ['jaw', 'idle', 'tongue', 'head', 'idle']
+      : ['idle', 'head', 'idle', 'head'];
     let cueIndex = 0;
     const playCue = () => {
       const nextCue = cues[cueIndex % cues.length];
@@ -42,12 +45,16 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
     };
 
     playCue();
-    const interval = setInterval(playCue, appearance.alteredIntensity >= 2 ? 900 : 1_300);
+    const interval = setInterval(playCue, appearance.isDrunk ? 1_700 : appearance.alteredIntensity >= 2 ? 900 : 1_300);
     return () => clearInterval(interval);
-  }, [appearance.alteredIntensity, appearance.isAltered, nervousOffset]);
+  }, [animatedState, appearance.alteredIntensity, appearance.isAltered, appearance.isDrunk, nervousOffset]);
 
   return (
     <View style={[styles.stage, compact && styles.stageCompact]}>
+      <View style={styles.roomWall} />
+      <View style={styles.window}><Text style={styles.city}>▥  ▥  ▥</Text></View>
+      <Text style={styles.neonSign}>NO SLEEP{`\n`}CLUB</Text>
+      <View style={styles.floor} />
       <View style={styles.glow} />
       <View style={styles.neonLine} />
       <Animated.View style={[styles.character, { transform: [{ translateX: nervousOffset }] }] }>
@@ -66,6 +73,7 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
           <View style={styles.noseRing} />
           <View style={styles.beard} />
           <View style={[styles.mouth, cue === 'jaw' && styles.jawMouth]} />
+          {appearance.isDrunk && <View style={styles.drunkBlush} />}
           {cue === 'tongue' && <View style={styles.tongue} />}
           {appearance.isSweating && (
             <>
@@ -82,6 +90,12 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
             <Text style={styles.bagText}>MF</Text>
           </View>
         </View>
+        {!compact && (
+          <View style={styles.legs}>
+            <View style={styles.leg}><View style={styles.rip} /><View style={styles.shoe} /></View>
+            <View style={styles.leg}><View style={styles.rip} /><View style={styles.shoe} /></View>
+          </View>
+        )}
       </Animated.View>
       {!compact && <Text style={styles.caption}>Sin gafas · los ojos muestran su estado</Text>}
     </View>
@@ -90,7 +104,7 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
 
 const styles = StyleSheet.create({
   stage: {
-    height: 330,
+    height: 430,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -98,6 +112,11 @@ const styles = StyleSheet.create({
   stageCompact: {
     height: 300,
   },
+  roomWall: { position: 'absolute', inset: 8, borderRadius: 30, backgroundColor: '#211039', borderWidth: 2, borderColor: '#4c2382' },
+  floor: { position: 'absolute', left: 8, right: 8, bottom: 8, height: 115, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, backgroundColor: '#170c28', borderTopWidth: 2, borderTopColor: '#6935a7' },
+  window: { position: 'absolute', left: 24, top: 30, width: 82, height: 105, backgroundColor: '#080d2c', borderWidth: 3, borderColor: '#5b2c91', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 12 },
+  city: { color: '#2ad7ff', fontSize: 15, textShadowColor: '#2ad7ff', textShadowRadius: 8 },
+  neonSign: { position: 'absolute', right: 24, top: 42, color: '#ff54c7', fontSize: 14, fontWeight: '900', textAlign: 'center', textShadowColor: '#ff3ebd', textShadowRadius: 9 },
   glow: {
     position: 'absolute',
     width: 260,
@@ -119,6 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 2,
   },
+  drunkBlush: { position: 'absolute', left: 22, right: 22, top: 91, height: 13, borderRadius: 10, backgroundColor: '#d56a77', opacity: 0.35 },
   head: {
     width: 150,
     height: 150,
@@ -308,6 +328,10 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     fontSize: 11,
   },
+  legs: { flexDirection: 'row', gap: 12, marginTop: -4, zIndex: 1 },
+  leg: { width: 66, height: 98, backgroundColor: '#65708a', borderWidth: 4, borderColor: '#160d24', position: 'relative' },
+  rip: { position: 'absolute', top: 34, left: 8, right: 8, height: 8, backgroundColor: '#b5bed0', transform: [{ rotate: '-4deg' }] },
+  shoe: { position: 'absolute', bottom: -10, left: -7, width: 76, height: 26, borderRadius: 12, backgroundColor: '#eceaf2', borderWidth: 4, borderColor: '#160d24' },
   caption: {
     color: colors.textMuted,
     fontSize: 11,

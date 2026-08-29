@@ -15,7 +15,7 @@ import {
 } from '@/domain/items';
 import { INITIAL_VITALS, normalizeVitals, type MapoferVitals } from '@/domain/mapofer';
 
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -30,7 +30,7 @@ function normalizeActiveEffects(value: unknown): ActiveItemEffect[] {
     if (!candidate || typeof candidate !== 'object') return [];
     const effect = candidate as Partial<ActiveItemEffect>;
     if (
-      (effect.itemId !== 'pill' && effect.itemId !== 'chicken') ||
+      !effect.itemId || !(effect.itemId in ITEMS) ||
       !Number.isFinite(effect.startedAt) ||
       !Number.isFinite(effect.expiresAt)
     ) {
@@ -44,6 +44,7 @@ function normalizeActiveEffects(value: unknown): ActiveItemEffect[] {
       startedAt: effect.startedAt!,
       expiresAt: effect.expiresAt!,
       alteredIntensity: item.activeEffect.alteredIntensity,
+      drunkIntensity: item.activeEffect.drunkIntensity,
     }];
   });
 }
@@ -136,6 +137,8 @@ export const useMapoferStore = create<MapoferStore>()(
         altered: state.altered,
         sweat: state.sweat,
         energy: state.energy,
+        drunkenness: state.drunkenness,
+        hangover: state.hangover,
         mapocoins: state.mapocoins,
         inventory: state.inventory,
         activeEffects: state.activeEffects,
@@ -152,6 +155,10 @@ export const useMapoferStore = create<MapoferStore>()(
           chicken: Number.isFinite(savedInventory?.chicken)
             ? Math.max(0, Math.floor(savedInventory!.chicken))
             : INITIAL_INVENTORY.chicken,
+          beer: Number.isFinite(savedInventory?.beer) ? Math.max(0, Math.floor(savedInventory!.beer)) : INITIAL_INVENTORY.beer,
+          vermouth: Number.isFinite(savedInventory?.vermouth) ? Math.max(0, Math.floor(savedInventory!.vermouth)) : INITIAL_INVENTORY.vermouth,
+          'mixed-drink': Number.isFinite(savedInventory?.['mixed-drink']) ? Math.max(0, Math.floor(savedInventory!['mixed-drink'])) : INITIAL_INVENTORY['mixed-drink'],
+          shot: Number.isFinite(savedInventory?.shot) ? Math.max(0, Math.floor(savedInventory!.shot)) : INITIAL_INVENTORY.shot,
         };
         return {
           ...current,

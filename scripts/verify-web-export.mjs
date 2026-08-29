@@ -4,6 +4,7 @@ const base = '/poufer/';
 const requiredFiles = [
   'dist/index.html',
   'dist/pharmacy.html',
+  'dist/bar.html',
   'dist/manifest.webmanifest',
   'dist/sw.js',
   'dist/icons/icon-192.png',
@@ -16,6 +17,7 @@ await Promise.all(requiredFiles.map((file) => access(file)));
 
 const html = await readFile('dist/index.html', 'utf8');
 const pharmacyHtml = await readFile('dist/pharmacy.html', 'utf8');
+const barHtml = await readFile('dist/bar.html', 'utf8');
 const manifest = JSON.parse(await readFile('dist/manifest.webmanifest', 'utf8'));
 
 if (!html.includes('src="/poufer/_expo/')) {
@@ -28,6 +30,10 @@ if (!html.includes('href="/poufer/manifest.webmanifest"')) {
 
 if (!pharmacyHtml.includes('src="/poufer/_expo/')) {
   throw new Error('La ruta /pharmacy no utiliza el base path /poufer/.');
+}
+
+if (!barHtml.includes('src="/poufer/_expo/')) {
+  throw new Error('La ruta /bar no utiliza el base path /poufer/.');
 }
 
 if (manifest.start_url !== base || manifest.scope !== base || manifest.display !== 'standalone') {

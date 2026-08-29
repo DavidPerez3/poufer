@@ -36,6 +36,7 @@ export function consumeItem(state: ItemUseState, itemId: ItemId, now: number): I
           startedAt: now,
           expiresAt: now + item.activeEffect.durationMs,
           alteredIntensity: item.activeEffect.alteredIntensity,
+          drunkIntensity: item.activeEffect.drunkIntensity,
         },
       ],
     },

@@ -42,6 +42,21 @@ La primera base jugable incluye:
 - efectos activos con duración y progreso offline;
 - migración automática de las partidas de fase 0.1.
 
+## Fase 0.3 — Una y nos vamos
+
+- Barpofer con cerveza, marianito rojo, cubata y chupito;
+- borrachera y resaca persistentes;
+- estados derivados BORRACHO y RESACOSO;
+- ojos entornados, rubor y balanceo cartoon;
+- primera mejora del escenario y personaje hacia la referencia visual.
+
+## Fase 0.14 — POUFER se pone guapo (reservada)
+
+Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
+ropa streetwear, habitaciones ilustradas, botones e iconos propios, barra superior,
+navegación inferior y animaciones específicas de todos los estados. La referencia
+visual aportada marca la dirección artística; no se copiarán assets externos.
+
 ## Desarrollo local
 
 ```bash
@@ -112,4 +127,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.3: Bar, alcohol, borrachera y resaca reutilizando el catálogo genérico de objetos.
+Fase 0.4: tabaco, porros, humo cartoon y ojos rojos.

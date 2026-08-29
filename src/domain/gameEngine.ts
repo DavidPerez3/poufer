@@ -21,6 +21,8 @@ export function applyNeedEffects(needs: MapoferVitals, effects: NeedEffects): Ma
     altered: clampNeed(needs.altered + (effects.altered ?? 0)),
     sweat: clampNeed(needs.sweat + (effects.sweat ?? 0)),
     energy: clampNeed(needs.energy + (effects.energy ?? 0)),
+    drunkenness: clampNeed(needs.drunkenness + (effects.drunkenness ?? 0)),
+    hangover: clampNeed(needs.hangover + (effects.hangover ?? 0)),
   };
 }
 
@@ -46,6 +48,11 @@ export function advanceNeeds(state: TimedNeeds, now: number): TimedNeeds {
     altered: clampNeed(needs.altered - VITAL_CHANGE_PER_HOUR.altered * elapsedHours),
     sweat: clampNeed(needs.sweat - VITAL_CHANGE_PER_HOUR.sweat * elapsedHours),
     energy: clampNeed(needs.energy - VITAL_CHANGE_PER_HOUR.energy * elapsedHours),
+    drunkenness: clampNeed(needs.drunkenness - VITAL_CHANGE_PER_HOUR.drunkenness * elapsedHours),
+    hangover: clampNeed(
+      needs.hangover - VITAL_CHANGE_PER_HOUR.hangover * elapsedHours +
+        Math.min(needs.drunkenness, VITAL_CHANGE_PER_HOUR.drunkenness * elapsedHours) * 0.28,
+    ),
     lastUpdatedAt: safeNow,
   };
 }

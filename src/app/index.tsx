@@ -37,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.2</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.3</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -79,11 +79,11 @@ export default function HomeScreen() {
             <Text style={styles.lockedTitle}>Farmacia</Text>
             <Text style={styles.moduleReady}>ABIERTO</Text>
           </Pressable>
-          <View style={styles.lockedCard}>
+          <Pressable onPress={() => router.push('/bar')} style={({ pressed }) => [styles.barCard, pressed && styles.actionPressed]}>
             <Text style={styles.lockedEmoji}>🍺</Text>
             <Text style={styles.lockedTitle}>Bar</Text>
-            <Text style={styles.lockedText}>Fase 0.3</Text>
-          </View>
+            <Text style={styles.barReady}>ABIERTO</Text>
+          </Pressable>
         </View>
 
         <Pressable onLongPress={state.reset} delayLongPress={900} style={styles.devReset}>
@@ -277,6 +277,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.success,
   },
+  barCard: { flex: 1, backgroundColor: '#4a1724', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#ff5c72' },
+  barReady: { color: '#ff91a4', fontSize: 11, fontWeight: '900', marginTop: 2 },
   lockedEmoji: {
     fontSize: 24,
   },

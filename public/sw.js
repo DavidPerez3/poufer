@@ -1,4 +1,4 @@
-const CACHE_NAME = 'poufer-shell-v3';
+const CACHE_NAME = 'poufer-shell-v4';
 const BASE = '/poufer';
 const SHELL = [
   `${BASE}/`,

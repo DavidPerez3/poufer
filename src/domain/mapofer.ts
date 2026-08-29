@@ -19,6 +19,8 @@ export type MapoferVitals = MapoferNeeds & {
   altered: number;
   sweat: number;
   energy: number;
+  drunkenness: number;
+  hangover: number;
 };
 
 export const INITIAL_NEEDS: MapoferNeeds = {
@@ -34,6 +36,8 @@ export const INITIAL_VITALS: MapoferVitals = {
   altered: 0,
   sweat: 0,
   energy: 72,
+  drunkenness: 0,
+  hangover: 0,
 };
 
 export const clampNeed = (value: number) => Math.max(0, Math.min(100, value));
@@ -54,6 +58,8 @@ export function normalizeVitals(vitals: Partial<MapoferVitals>): MapoferVitals {
     altered: clampNeed(Number.isFinite(vitals.altered) ? vitals.altered! : INITIAL_VITALS.altered),
     sweat: clampNeed(Number.isFinite(vitals.sweat) ? vitals.sweat! : INITIAL_VITALS.sweat),
     energy: clampNeed(Number.isFinite(vitals.energy) ? vitals.energy! : INITIAL_VITALS.energy),
+    drunkenness: clampNeed(Number.isFinite(vitals.drunkenness) ? vitals.drunkenness! : INITIAL_VITALS.drunkenness),
+    hangover: clampNeed(Number.isFinite(vitals.hangover) ? vitals.hangover! : INITIAL_VITALS.hangover),
   };
 }
 

@@ -14,6 +14,8 @@ const healthyState: TimedNeeds = {
   altered: 0,
   sweat: 0,
   energy: 72,
+  drunkenness: 0,
+  hangover: 0,
   lastUpdatedAt: 1_000,
 };
 
@@ -29,6 +31,8 @@ test('aplica el deterioro proporcional al tiempo transcurrido', () => {
     altered: 0,
     sweat: 0,
     energy: 70,
+    drunkenness: 0,
+    hangover: 0,
     lastUpdatedAt: healthyState.lastUpdatedAt + HOUR_MS,
   });
 });
@@ -51,6 +55,16 @@ test('no aplica deterioro negativo si el reloj del dispositivo retrocede', () =>
   assert.deepEqual(result, healthyState);
 });
 
+test('reduce la borrachera y convierte parte de ella en resaca con el tiempo', () => {
+  const result = advanceNeeds(
+    { ...healthyState, drunkenness: 40, hangover: 4 },
+    healthyState.lastUpdatedAt + HOUR_MS,
+  );
+
+  assert.equal(result.drunkenness, 28);
+  assert.equal(result.hangover, 5.36);
+});
+
 test('sanea valores persistidos inválidos y limita los efectos', () => {
   const result = applyNeedEffects(
     {
@@ -62,6 +76,8 @@ test('sanea valores persistidos inválidos y limita los efectos', () => {
       altered: 0,
       sweat: 0,
       energy: 72,
+      drunkenness: 0,
+      hangover: 0,
     },
     { hunger: 20, hygiene: -20, boredom: -50, altered: 130, sweat: 18 },
   );
@@ -75,5 +91,7 @@ test('sanea valores persistidos inválidos y limita los efectos', () => {
     altered: 100,
     sweat: 18,
     energy: 72,
+    drunkenness: 0,
+    hangover: 0,
   });
 });

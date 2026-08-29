@@ -12,6 +12,8 @@ export const VITAL_CHANGE_PER_HOUR: Readonly<MapoferVitals> = {
   altered: 18,
   sweat: 8,
   energy: 2,
+  drunkenness: 12,
+  hangover: 2,
 };
 
 export type BasicActionId = 'eat' | 'shower' | 'rest' | 'watchAnime';
