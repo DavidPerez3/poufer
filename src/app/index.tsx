@@ -37,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.3</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.4</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -83,6 +83,11 @@ export default function HomeScreen() {
             <Text style={styles.lockedEmoji}>🍺</Text>
             <Text style={styles.lockedTitle}>Bar</Text>
             <Text style={styles.barReady}>ABIERTO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push('/smoking')} style={({ pressed }) => [styles.smokeCard, pressed && styles.actionPressed]}>
+            <Text style={styles.lockedEmoji}>🚬</Text>
+            <Text style={styles.lockedTitle}>Fumar</Text>
+            <Text style={styles.smokeReady}>ABIERTO</Text>
           </Pressable>
         </View>
 
@@ -259,6 +264,7 @@ const styles = StyleSheet.create({
   lockedRow: {
     flexDirection: 'row',
     gap: 10,
+    flexWrap: 'wrap',
   },
   lockedCard: {
     flex: 1,
@@ -279,6 +285,8 @@ const styles = StyleSheet.create({
   },
   barCard: { flex: 1, backgroundColor: '#4a1724', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#ff5c72' },
   barReady: { color: '#ff91a4', fontSize: 11, fontWeight: '900', marginTop: 2 },
+  smokeCard: { minWidth: '47%', flex: 1, backgroundColor: '#12372e', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#52cf92' },
+  smokeReady: { color: '#79e7b1', fontSize: 11, fontWeight: '900', marginTop: 2 },
   lockedEmoji: {
     fontSize: 24,
   },

@@ -5,6 +5,7 @@ const requiredFiles = [
   'dist/index.html',
   'dist/pharmacy.html',
   'dist/bar.html',
+  'dist/smoking.html',
   'dist/manifest.webmanifest',
   'dist/sw.js',
   'dist/icons/icon-192.png',

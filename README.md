@@ -50,6 +50,14 @@ La primera base jugable incluye:
 - ojos entornados, rubor y balanceo cartoon;
 - primera mejora del escenario y personaje hacia la referencia visual.
 
+## Fase 0.4 — Fumar
+
+- pantalla Fumar con cigarro y porro mediante el catálogo genérico de objetos;
+- humo cartoon y objeto visible mientras dura el efecto;
+- ojos rojos y estado `EMPANADO` derivados del porro;
+- relación jugable porro → hambre → comida;
+- persistencia y migración automática del inventario de pruebas.
+
 ## Fase 0.14 — POUFER se pone guapo (reservada)
 
 Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
@@ -127,4 +135,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.4: tabaco, porros, humo cartoon y ojos rojos.
+Fase 0.5: comida, baño, ducha, dormir, mear, cagar y acumulación de cacas cartoon.

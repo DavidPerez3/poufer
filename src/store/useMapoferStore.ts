@@ -15,7 +15,7 @@ import {
 } from '@/domain/items';
 import { INITIAL_VITALS, normalizeVitals, type MapoferVitals } from '@/domain/mapofer';
 
-const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 4;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -45,6 +45,8 @@ function normalizeActiveEffects(value: unknown): ActiveItemEffect[] {
       expiresAt: effect.expiresAt!,
       alteredIntensity: item.activeEffect.alteredIntensity,
       drunkIntensity: item.activeEffect.drunkIntensity,
+      smokeIntensity: item.activeEffect.smokeIntensity,
+      redEyeIntensity: item.activeEffect.redEyeIntensity,
     }];
   });
 }
@@ -159,6 +161,8 @@ export const useMapoferStore = create<MapoferStore>()(
           vermouth: Number.isFinite(savedInventory?.vermouth) ? Math.max(0, Math.floor(savedInventory!.vermouth)) : INITIAL_INVENTORY.vermouth,
           'mixed-drink': Number.isFinite(savedInventory?.['mixed-drink']) ? Math.max(0, Math.floor(savedInventory!['mixed-drink'])) : INITIAL_INVENTORY['mixed-drink'],
           shot: Number.isFinite(savedInventory?.shot) ? Math.max(0, Math.floor(savedInventory!.shot)) : INITIAL_INVENTORY.shot,
+          cigarette: Number.isFinite(savedInventory?.cigarette) ? Math.max(0, Math.floor(savedInventory!.cigarette)) : INITIAL_INVENTORY.cigarette,
+          joint: Number.isFinite(savedInventory?.joint) ? Math.max(0, Math.floor(savedInventory!.joint)) : INITIAL_INVENTORY.joint,
         };
         return {
           ...current,

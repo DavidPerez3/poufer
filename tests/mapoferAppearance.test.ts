@@ -15,6 +15,8 @@ test('deriva ojos dilatados y estado fino desde un efecto activo', () => {
       expiresAt: now + 60_000,
       alteredIntensity: 1,
       drunkIntensity: 0,
+      smokeIntensity: 0,
+      redEyeIntensity: 0,
     },
   ];
 
@@ -36,6 +38,8 @@ test('ignora efectos caducados', () => {
       expiresAt: 9_000,
       alteredIntensity: 2,
       drunkIntensity: 0,
+      smokeIntensity: 0,
+      redEyeIntensity: 0,
     },
   ];
 
@@ -56,6 +60,8 @@ test('deriva borrachera y ojos entornados desde una bebida activa', () => {
       expiresAt: now + 60_000,
       alteredIntensity: 0,
       drunkIntensity: 2,
+      smokeIntensity: 0,
+      redEyeIntensity: 0,
     },
   ];
 
@@ -81,4 +87,25 @@ test('muestra resaca cuando ya no queda una bebida activa', () => {
   assert.equal(appearance.status, 'resacoso');
   assert.equal(appearance.eyeState, 'tired');
   assert.equal(appearance.isDrunk, false);
+});
+
+test('deriva ojos rojos y estado empanado desde un porro activo', () => {
+  const now = 10_000;
+  const effects: ActiveItemEffect[] = [{
+    itemId: 'joint',
+    animation: 'smoke',
+    startedAt: now - 500,
+    expiresAt: now + 60_000,
+    alteredIntensity: 0,
+    drunkIntensity: 0,
+    smokeIntensity: 2,
+    redEyeIntensity: 2,
+  }];
+
+  const appearance = deriveAppearance(INITIAL_VITALS, effects, now);
+
+  assert.equal(appearance.status, 'empanado');
+  assert.equal(appearance.eyeState, 'red');
+  assert.equal(appearance.smokeIntensity, 2);
+  assert.equal(appearance.redEyeIntensity, 2);
 });

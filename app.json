@@ -2,7 +2,7 @@
   "expo": {
     "name": "Poufer",
     "slug": "poufer",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "orientation": "portrait",
     "scheme": "poufer",
     "icon": "./assets/icon.png",

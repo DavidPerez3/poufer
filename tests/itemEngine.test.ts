@@ -35,3 +35,14 @@ test('consumeItem no produce efectos cuando no queda stock', () => {
   assert.equal(outcome.state.altered, 0);
   assert.deepEqual(outcome.state.activeEffects, []);
 });
+
+test('el porro aplica hambre y configuración visual sin lógica específica', () => {
+  const now = 90_000;
+  const outcome = consumeItem(initialState(now), 'joint', now);
+
+  assert.equal(outcome.result, 'used');
+  assert.equal(outcome.state.hunger, INITIAL_VITALS.hunger - 18);
+  assert.equal(outcome.state.inventory.joint, INITIAL_INVENTORY.joint - 1);
+  assert.equal(outcome.state.activeEffects.at(-1)?.animation, 'smoke');
+  assert.equal(outcome.state.activeEffects.at(-1)?.redEyeIntensity, 2);
+});

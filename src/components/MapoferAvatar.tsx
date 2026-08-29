@@ -17,7 +17,8 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
   const nervousOffset = useRef(new Animated.Value(0)).current;
   const tired = appearance.eyeState === 'tired' || appearance.eyeState === 'drunk';
   const dilated = appearance.eyeState === 'dilated';
-  const animatedState = appearance.isAltered || appearance.isDrunk;
+  const redEyes = appearance.eyeState === 'red';
+  const animatedState = appearance.isAltered || appearance.isDrunk || appearance.smokeIntensity > 0;
 
   useEffect(() => {
     if (!animatedState) {
@@ -28,7 +29,7 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
 
     const cues: AlteredCue[] = appearance.isAltered
       ? ['jaw', 'idle', 'tongue', 'head', 'idle']
-      : ['idle', 'head', 'idle', 'head'];
+      : appearance.isDrunk ? ['idle', 'head', 'idle', 'head'] : ['idle', 'head', 'idle', 'idle'];
     let cueIndex = 0;
     const playCue = () => {
       const nextCue = cues[cueIndex % cues.length];
@@ -45,9 +46,9 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
     };
 
     playCue();
-    const interval = setInterval(playCue, appearance.isDrunk ? 1_700 : appearance.alteredIntensity >= 2 ? 900 : 1_300);
+    const interval = setInterval(playCue, appearance.isDrunk ? 1_700 : appearance.smokeIntensity > 0 ? 2_100 : appearance.alteredIntensity >= 2 ? 900 : 1_300);
     return () => clearInterval(interval);
-  }, [animatedState, appearance.alteredIntensity, appearance.isAltered, appearance.isDrunk, nervousOffset]);
+  }, [animatedState, appearance.alteredIntensity, appearance.isAltered, appearance.isDrunk, appearance.smokeIntensity, nervousOffset]);
 
   return (
     <View style={[styles.stage, compact && styles.stageCompact]}>
@@ -63,10 +64,10 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
           <View style={styles.earLeft} />
           <View style={styles.earRight} />
           <View style={styles.eyesRow}>
-            <View style={[styles.eye, tired && styles.tiredEye]}>
+            <View style={[styles.eye, tired && styles.tiredEye, redEyes && styles.redEye]}>
               <View style={[styles.pupil, dilated && styles.dilatedPupil]} />
             </View>
-            <View style={[styles.eye, tired && styles.tiredEye]}>
+            <View style={[styles.eye, tired && styles.tiredEye, redEyes && styles.redEye]}>
               <View style={[styles.pupil, dilated && styles.dilatedPupil]} />
             </View>
           </View>
@@ -75,6 +76,13 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
           <View style={[styles.mouth, cue === 'jaw' && styles.jawMouth]} />
           {appearance.isDrunk && <View style={styles.drunkBlush} />}
           {cue === 'tongue' && <View style={styles.tongue} />}
+          {appearance.smokeIntensity > 0 && (
+            <>
+              <View style={styles.cigarette}><View style={styles.ember} /></View>
+              <Text style={styles.smokeOne}>◯</Text>
+              <Text style={styles.smokeTwo}>○</Text>
+            </>
+          )}
           {appearance.isSweating && (
             <>
               <Text style={styles.sweatLeft}>💧</Text>
@@ -199,6 +207,7 @@ const styles = StyleSheet.create({
   tiredEye: {
     height: 12,
   },
+  redEye: { backgroundColor: '#ff8f94', borderWidth: 2, borderColor: '#ff4f65' },
   pupil: {
     width: 9,
     height: 9,
@@ -258,6 +267,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0749c',
     zIndex: 4,
   },
+  cigarette: { position: 'absolute', bottom: 28, right: 45, width: 31, height: 5, borderRadius: 3, backgroundColor: '#e8dec7', transform: [{ rotate: '-18deg' }], zIndex: 5 },
+  ember: { position: 'absolute', right: -2, top: -1, width: 7, height: 7, borderRadius: 4, backgroundColor: '#ff6a3d' },
+  smokeOne: { position: 'absolute', right: 23, bottom: 42, color: '#d8d2df', fontSize: 18, opacity: 0.75 },
+  smokeTwo: { position: 'absolute', right: 9, bottom: 58, color: '#bfb8ca', fontSize: 24, opacity: 0.45 },
   sweatLeft: {
     position: 'absolute',
     left: 10,
