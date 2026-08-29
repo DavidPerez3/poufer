@@ -21,6 +21,8 @@ export type MapoferVitals = MapoferNeeds & {
   energy: number;
   drunkenness: number;
   hangover: number;
+  bladder: number;
+  bowel: number;
 };
 
 export const INITIAL_NEEDS: MapoferNeeds = {
@@ -38,6 +40,8 @@ export const INITIAL_VITALS: MapoferVitals = {
   energy: 72,
   drunkenness: 0,
   hangover: 0,
+  bladder: 25,
+  bowel: 18,
 };
 
 export const clampNeed = (value: number) => Math.max(0, Math.min(100, value));
@@ -60,6 +64,8 @@ export function normalizeVitals(vitals: Partial<MapoferVitals>): MapoferVitals {
     energy: clampNeed(Number.isFinite(vitals.energy) ? vitals.energy! : INITIAL_VITALS.energy),
     drunkenness: clampNeed(Number.isFinite(vitals.drunkenness) ? vitals.drunkenness! : INITIAL_VITALS.drunkenness),
     hangover: clampNeed(Number.isFinite(vitals.hangover) ? vitals.hangover! : INITIAL_VITALS.hangover),
+    bladder: clampNeed(Number.isFinite(vitals.bladder) ? vitals.bladder! : INITIAL_VITALS.bladder),
+    bowel: clampNeed(Number.isFinite(vitals.bowel) ? vitals.bowel! : INITIAL_VITALS.bowel),
   };
 }
 

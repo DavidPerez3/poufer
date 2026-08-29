@@ -1,8 +1,8 @@
 import type { NeedEffects } from '@/domain/gameBalance';
 
 export type ItemCategory = 'pharmacy' | 'food' | 'drink' | 'smoke';
-export type ItemAnimation = 'take-pill' | 'take-chicken' | 'drink' | 'smoke';
-export type ItemId = 'pill' | 'chicken' | 'beer' | 'vermouth' | 'mixed-drink' | 'shot' | 'cigarette' | 'joint';
+export type ItemAnimation = 'take-pill' | 'take-chicken' | 'drink' | 'smoke' | 'eat';
+export type ItemId = 'pill' | 'chicken' | 'beer' | 'vermouth' | 'mixed-drink' | 'shot' | 'cigarette' | 'joint' | 'kebab' | 'pizza' | 'burger' | 'fries' | 'sandwich';
 
 export type ItemDefinition = {
   id: ItemId;
@@ -85,11 +85,42 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     activeEffect: { durationMs: 8 * MINUTE_MS, alteredIntensity: 0, drunkIntensity: 0, smokeIntensity: 2, redEyeIntensity: 2 },
     animation: 'smoke',
   },
+  kebab: {
+    id: 'kebab', name: 'Kebab', category: 'food', icon: '🌯', priceMapocoins: null,
+    description: 'La respuesta oficial a los ojos rojos y las malas decisiones.',
+    effects: { hunger: 38, hygiene: -4, sleep: -3, bladder: 8, bowel: 15 },
+    activeEffect: { durationMs: 20_000, alteredIntensity: 0, drunkIntensity: 0, smokeIntensity: 0, redEyeIntensity: 0 }, animation: 'eat',
+  },
+  pizza: {
+    id: 'pizza', name: 'Pizza', category: 'food', icon: '🍕', priceMapocoins: null,
+    description: 'Una pizza cartoon con más queso que estabilidad estructural.',
+    effects: { hunger: 32, hygiene: -3, bladder: 5, bowel: 12 },
+    activeEffect: { durationMs: 20_000, alteredIntensity: 0, drunkIntensity: 0, smokeIntensity: 0, redEyeIntensity: 0 }, animation: 'eat',
+  },
+  burger: {
+    id: 'burger', name: 'Hamburguesa', category: 'food', icon: '🍔', priceMapocoins: null,
+    description: 'Doble de todo, incluida la futura visita al baño.',
+    effects: { hunger: 35, hygiene: -3, bowel: 16 },
+    activeEffect: { durationMs: 20_000, alteredIntensity: 0, drunkIntensity: 0, smokeIntensity: 0, redEyeIntensity: 0 }, animation: 'eat',
+  },
+  fries: {
+    id: 'fries', name: 'Patatas', category: 'food', icon: '🍟', priceMapocoins: null,
+    description: 'Crujientes, saladas y sorprendentemente fáciles de perder por el sofá.',
+    effects: { hunger: 19, hygiene: -2, bladder: 7, bowel: 7 },
+    activeEffect: { durationMs: 20_000, alteredIntensity: 0, drunkIntensity: 0, smokeIntensity: 0, redEyeIntensity: 0 }, animation: 'eat',
+  },
+  sandwich: {
+    id: 'sandwich', name: 'Bocata', category: 'food', icon: '🥖', priceMapocoins: null,
+    description: 'Un señor bocata para recuperar algo parecido a la dignidad.',
+    effects: { hunger: 29, hygiene: -2, bladder: 4, bowel: 10 },
+    activeEffect: { durationMs: 20_000, alteredIntensity: 0, drunkIntensity: 0, smokeIntensity: 0, redEyeIntensity: 0 }, animation: 'eat',
+  },
 };
 
 export const PHARMACY_ITEMS = [ITEMS.pill, ITEMS.chicken] as const;
 export const BAR_ITEMS = [ITEMS.beer, ITEMS.vermouth, ITEMS['mixed-drink'], ITEMS.shot] as const;
 export const SMOKE_ITEMS = [ITEMS.cigarette, ITEMS.joint] as const;
+export const FOOD_ITEMS = [ITEMS.kebab, ITEMS.pizza, ITEMS.burger, ITEMS.fries, ITEMS.sandwich] as const;
 
 export type Inventory = Record<ItemId, number>;
 
@@ -102,6 +133,11 @@ export const INITIAL_INVENTORY: Inventory = {
   shot: 3,
   cigarette: 5,
   joint: 3,
+  kebab: 3,
+  pizza: 3,
+  burger: 3,
+  fries: 4,
+  sandwich: 3,
 };
 
 export type ActiveItemEffect = {

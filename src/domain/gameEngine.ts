@@ -9,6 +9,10 @@ export type TimedNeeds = MapoferVitals & {
   lastUpdatedAt: number;
 };
 
+export type WorldModifiers = {
+  hygieneDecayPerHour?: number;
+};
+
 const HOUR_MS = 3_600_000;
 
 export function applyNeedEffects(needs: MapoferVitals, effects: NeedEffects): MapoferVitals {
@@ -23,10 +27,12 @@ export function applyNeedEffects(needs: MapoferVitals, effects: NeedEffects): Ma
     energy: clampNeed(needs.energy + (effects.energy ?? 0)),
     drunkenness: clampNeed(needs.drunkenness + (effects.drunkenness ?? 0)),
     hangover: clampNeed(needs.hangover + (effects.hangover ?? 0)),
+    bladder: clampNeed(needs.bladder + (effects.bladder ?? 0)),
+    bowel: clampNeed(needs.bowel + (effects.bowel ?? 0)),
   };
 }
 
-export function advanceNeeds(state: TimedNeeds, now: number): TimedNeeds {
+export function advanceNeeds(state: TimedNeeds, now: number, modifiers: WorldModifiers = {}): TimedNeeds {
   const safeNow = Number.isFinite(now) ? now : Date.now();
   const safePrevious = Number.isFinite(state.lastUpdatedAt) ? state.lastUpdatedAt : safeNow;
   const elapsedHours = Math.min(
@@ -41,7 +47,7 @@ export function advanceNeeds(state: TimedNeeds, now: number): TimedNeeds {
 
   return {
     hunger: clampNeed(needs.hunger - VITAL_CHANGE_PER_HOUR.hunger * elapsedHours),
-    hygiene: clampNeed(needs.hygiene - VITAL_CHANGE_PER_HOUR.hygiene * elapsedHours),
+    hygiene: clampNeed(needs.hygiene - (VITAL_CHANGE_PER_HOUR.hygiene + (modifiers.hygieneDecayPerHour ?? 0)) * elapsedHours),
     sleep: clampNeed(needs.sleep - VITAL_CHANGE_PER_HOUR.sleep * elapsedHours),
     boredom: clampNeed(needs.boredom - VITAL_CHANGE_PER_HOUR.boredom * elapsedHours),
     craving: clampNeed(needs.craving - VITAL_CHANGE_PER_HOUR.craving * elapsedHours),
@@ -53,6 +59,8 @@ export function advanceNeeds(state: TimedNeeds, now: number): TimedNeeds {
       needs.hangover - VITAL_CHANGE_PER_HOUR.hangover * elapsedHours +
         Math.min(needs.drunkenness, VITAL_CHANGE_PER_HOUR.drunkenness * elapsedHours) * 0.28,
     ),
+    bladder: clampNeed(needs.bladder - VITAL_CHANGE_PER_HOUR.bladder * elapsedHours),
+    bowel: clampNeed(needs.bowel - VITAL_CHANGE_PER_HOUR.bowel * elapsedHours),
     lastUpdatedAt: safeNow,
   };
 }

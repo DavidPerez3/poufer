@@ -58,6 +58,15 @@ La primera base jugable incluye:
 - relación jugable porro → hambre → comida;
 - persistencia y migración automática del inventario de pruebas.
 
+## Fase 0.5 — Vida digna
+
+- comida configurable: kebab, pizza, hamburguesa, patatas y bocata;
+- vejiga e intestino afectados por el tiempo y los alimentos;
+- habitación de baño con ducha, mear, cagar y limpiar;
+- cacas cartoon con caras, acumulables y persistentes;
+- penalización progresiva de higiene por suciedad acumulada;
+- dormir se mantiene como cuidado básico y persistente.
+
 ## Fase 0.14 — POUFER se pone guapo (reservada)
 
 Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
@@ -135,4 +144,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.5: comida, baño, ducha, dormir, mear, cagar y acumulación de cacas cartoon.
+Fase 0.6: ocio, aburrimiento desarrollado, anime y primeras actividades.

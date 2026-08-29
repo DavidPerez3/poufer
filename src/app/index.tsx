@@ -37,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.4</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.5</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -62,8 +62,8 @@ export default function HomeScreen() {
 
         <Text style={styles.sectionTitle}>Cuidados básicos</Text>
         <View style={styles.actionsGrid}>
-          <ActionButton emoji="🌯" label="Comer" detail="+ hambre" onPress={state.eat} />
-          <ActionButton emoji="🚿" label="Ducha" detail="+ higiene" onPress={state.shower} />
+          <ActionButton emoji="🌯" label="Comer" detail="elige menú" onPress={() => router.push('/food')} />
+          <ActionButton emoji="🚿" label="Baño" detail="ducha y WC" onPress={() => router.push('/bathroom')} />
           <ActionButton emoji="🛋️" label="Dormir" detail="+ sueño" onPress={state.rest} />
           <ActionButton emoji="📺" label="Anime" detail="- aburrimiento" onPress={state.watchAnime} />
         </View>
@@ -88,6 +88,12 @@ export default function HomeScreen() {
             <Text style={styles.lockedEmoji}>🚬</Text>
             <Text style={styles.lockedTitle}>Fumar</Text>
             <Text style={styles.smokeReady}>ABIERTO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push('/food')} style={({ pressed }) => [styles.foodCard, pressed && styles.actionPressed]}>
+            <Text style={styles.lockedEmoji}>🍔</Text><Text style={styles.lockedTitle}>Comida</Text><Text style={styles.foodReady}>ABIERTO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push('/bathroom')} style={({ pressed }) => [styles.bathCard, pressed && styles.actionPressed]}>
+            <Text style={styles.lockedEmoji}>🚿</Text><Text style={styles.lockedTitle}>Baño</Text><Text style={styles.bathReady}>ABIERTO</Text>
           </Pressable>
         </View>
 
@@ -287,6 +293,10 @@ const styles = StyleSheet.create({
   barReady: { color: '#ff91a4', fontSize: 11, fontWeight: '900', marginTop: 2 },
   smokeCard: { minWidth: '47%', flex: 1, backgroundColor: '#12372e', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#52cf92' },
   smokeReady: { color: '#79e7b1', fontSize: 11, fontWeight: '900', marginTop: 2 },
+  foodCard: { minWidth: '47%', flex: 1, backgroundColor: '#49330b', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#e99c13' },
+  foodReady: { color: '#ffd26e', fontSize: 11, fontWeight: '900', marginTop: 2 },
+  bathCard: { minWidth: '47%', flex: 1, backgroundColor: '#0e3446', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#45c8ff' },
+  bathReady: { color: '#7edcff', fontSize: 11, fontWeight: '900', marginTop: 2 },
   lockedEmoji: {
     fontSize: 24,
   },

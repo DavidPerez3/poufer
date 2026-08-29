@@ -16,6 +16,8 @@ const healthyState: TimedNeeds = {
   energy: 72,
   drunkenness: 0,
   hangover: 0,
+  bladder: 25,
+  bowel: 18,
   lastUpdatedAt: 1_000,
 };
 
@@ -33,6 +35,8 @@ test('aplica el deterioro proporcional al tiempo transcurrido', () => {
     energy: 70,
     drunkenness: 0,
     hangover: 0,
+    bladder: 31,
+    bowel: 22,
     lastUpdatedAt: healthyState.lastUpdatedAt + HOUR_MS,
   });
 });
@@ -47,6 +51,8 @@ test('limita el progreso offline a 48 horas y los stats a 0-100', () => {
   assert.equal(result.altered, 0);
   assert.equal(result.sweat, 0);
   assert.equal(result.energy, 0);
+  assert.equal(result.bladder, 100);
+  assert.equal(result.bowel, 100);
 });
 
 test('no aplica deterioro negativo si el reloj del dispositivo retrocede', () => {
@@ -78,6 +84,8 @@ test('sanea valores persistidos inválidos y limita los efectos', () => {
       energy: 72,
       drunkenness: 0,
       hangover: 0,
+      bladder: 25,
+      bowel: 18,
     },
     { hunger: 20, hygiene: -20, boredom: -50, altered: 130, sweat: 18 },
   );
@@ -93,5 +101,17 @@ test('sanea valores persistidos inválidos y limita los efectos', () => {
     energy: 72,
     drunkenness: 0,
     hangover: 0,
+    bladder: 25,
+    bowel: 18,
   });
+});
+
+test('las cacas acumuladas aceleran la pérdida de higiene', () => {
+  const normal = advanceNeeds(healthyState, healthyState.lastUpdatedAt + HOUR_MS);
+  const dirty = advanceNeeds(healthyState, healthyState.lastUpdatedAt + HOUR_MS, {
+    hygieneDecayPerHour: 2,
+  });
+
+  assert.equal(normal.hygiene, 78);
+  assert.equal(dirty.hygiene, 76);
 });
