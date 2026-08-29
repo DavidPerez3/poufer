@@ -109,3 +109,14 @@ test('deriva ojos rojos y estado empanado desde un porro activo', () => {
   assert.equal(appearance.smokeIntensity, 2);
   assert.equal(appearance.redEyeIntensity, 2);
 });
+
+test('deriva contentillo cuando el aburrimiento queda casi a cero', () => {
+  const appearance = deriveAppearance(
+    { ...INITIAL_VITALS, boredom: 4 },
+    [],
+    10_000,
+  );
+
+  assert.equal(appearance.status, 'contentillo');
+  assert.equal(appearance.eyeState, 'normal');
+});

@@ -7,6 +7,7 @@ import { BASIC_ACTIONS, type BasicActionId } from '@/domain/gameBalance';
 import { performBathroomAction, type BathroomActionId, type CartoonPoop } from '@/domain/bathroom';
 import { advanceNeeds, applyNeedEffects } from '@/domain/gameEngine';
 import { consumeItem } from '@/domain/itemEngine';
+import { performLeisureActivity, type LastLeisureActivity, type LeisureActivityId } from '@/domain/leisure';
 import {
   INITIAL_INVENTORY,
   ITEMS,
@@ -16,7 +17,7 @@ import {
 } from '@/domain/items';
 import { INITIAL_VITALS, normalizeVitals, type MapoferVitals } from '@/domain/mapofer';
 
-const STORAGE_VERSION = 5;
+const STORAGE_VERSION = 6;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -66,6 +67,16 @@ function normalizePoops(value: unknown): CartoonPoop[] {
   });
 }
 
+function normalizeLastActivity(value: unknown): LastLeisureActivity | null {
+  if (!value || typeof value !== 'object') return null;
+  const activity = value as Partial<LastLeisureActivity>;
+  if (
+    (activity.activityId !== 'anime' && activity.activityId !== 'techno' && activity.activityId !== 'night-walk') ||
+    !Number.isFinite(activity.completedAt)
+  ) return null;
+  return { activityId: activity.activityId, completedAt: activity.completedAt! };
+}
+
 export type UseItemResult = 'used' | 'out-of-stock';
 export type BathroomResult = 'done' | 'not-needed' | 'nothing-to-clean';
 
@@ -74,6 +85,8 @@ type MapoferStore = MapoferVitals & {
   inventory: Inventory;
   activeEffects: ActiveItemEffect[];
   poops: CartoonPoop[];
+  leisureSessions: number;
+  lastLeisureActivity: LastLeisureActivity | null;
   lastUpdatedAt: number;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
@@ -81,6 +94,7 @@ type MapoferStore = MapoferVitals & {
   performBasicAction: (actionId: BasicActionId, now?: number) => void;
   useItem: (itemId: ItemId, now?: number) => UseItemResult;
   performBathroomAction: (action: BathroomActionId, now?: number) => BathroomResult;
+  performActivity: (activityId: LeisureActivityId, now?: number) => void;
   eat: () => void;
   shower: () => void;
   rest: () => void;
@@ -98,6 +112,8 @@ export const useMapoferStore = create<MapoferStore>()(
       inventory: INITIAL_INVENTORY,
       activeEffects: [],
       poops: [],
+      leisureSessions: 0,
+      lastLeisureActivity: null,
       lastUpdatedAt: touchTime(),
       hasHydrated: false,
 
@@ -141,10 +157,22 @@ export const useMapoferStore = create<MapoferStore>()(
         return result;
       },
 
+      performActivity: (activityId, now = touchTime()) =>
+        set((state) => ({
+          ...performLeisureActivity(
+            state,
+            activityId,
+            now,
+            state.poops.length * 0.4,
+          ),
+          leisureSessions: state.leisureSessions + 1,
+          lastLeisureActivity: { activityId, completedAt: now },
+        })),
+
       eat: () => get().performBasicAction('eat'),
       shower: () => get().performBasicAction('shower'),
       rest: () => get().performBasicAction('rest'),
-      watchAnime: () => get().performBasicAction('watchAnime'),
+      watchAnime: () => get().performActivity('anime'),
 
       reset: () =>
         set({
@@ -153,6 +181,8 @@ export const useMapoferStore = create<MapoferStore>()(
           inventory: INITIAL_INVENTORY,
           activeEffects: [],
           poops: [],
+          leisureSessions: 0,
+          lastLeisureActivity: null,
           lastUpdatedAt: touchTime(),
         }),
     }),
@@ -178,6 +208,8 @@ export const useMapoferStore = create<MapoferStore>()(
         inventory: state.inventory,
         activeEffects: state.activeEffects,
         poops: state.poops,
+        leisureSessions: state.leisureSessions,
+        lastLeisureActivity: state.lastLeisureActivity,
         lastUpdatedAt: state.lastUpdatedAt,
       }),
       merge: (persisted, current) => {
@@ -212,6 +244,10 @@ export const useMapoferStore = create<MapoferStore>()(
           inventory,
           activeEffects: normalizeActiveEffects(saved?.activeEffects),
           poops: normalizePoops(saved?.poops),
+          leisureSessions: Number.isFinite(saved?.leisureSessions)
+            ? Math.max(0, Math.floor(saved!.leisureSessions!))
+            : 0,
+          lastLeisureActivity: normalizeLastActivity(saved?.lastLeisureActivity),
           lastUpdatedAt: Number.isFinite(saved?.lastUpdatedAt)
             ? saved!.lastUpdatedAt!
             : current.lastUpdatedAt,

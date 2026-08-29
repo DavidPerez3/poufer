@@ -1,6 +1,7 @@
 export type EyeState = 'normal' | 'red' | 'dilated' | 'tired' | 'drunk';
 
 export type MapoferMood =
+  | 'contentillo'
   | 'tranquilo'
   | 'aburrido'
   | 'hambriento'
@@ -74,10 +75,12 @@ export function deriveMood(needs: MapoferNeeds): MapoferMood {
   if (needs.sleep < 32) return 'cansado';
   if (needs.hunger < 32) return 'hambriento';
   if (needs.boredom > 68) return 'aburrido';
+  if (needs.boredom <= 10) return 'contentillo';
   return 'tranquilo';
 }
 
 export const moodLabel: Record<MapoferMood, string> = {
+  contentillo: 'CONTENTILLO',
   tranquilo: 'TRANQUILO',
   aburrido: 'ABURRIDO',
   hambriento: 'HAMBRIENTO',

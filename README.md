@@ -67,6 +67,15 @@ La primera base jugable incluye:
 - penalización progresiva de higiene por suciedad acumulada;
 - dormir se mantiene como cuidado básico y persistente.
 
+## Fase 0.6 — Ocio
+
+- habitación de Ocio con actividades configurables;
+- anime, temazos y paseo nocturno con efectos y duración propios;
+- contador persistente y registro de la última actividad;
+- estado `CONTENTILLO` y gesto visual cuando el aburrimiento es muy bajo;
+- estado aburrido con ojos y boca diferenciados;
+- accesos futuros a tragaperras, CUPRA negro y ritmo techno claramente bloqueados.
+
 ## Fase 0.14 — POUFER se pone guapo (reservada)
 
 Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
@@ -144,4 +153,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.6: ocio, aburrimiento desarrollado, anime y primeras actividades.
+Fase 0.7: Mapocoins, tienda, precios y recompensas.

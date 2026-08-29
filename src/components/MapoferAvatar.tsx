@@ -18,6 +18,8 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
   const tired = appearance.eyeState === 'tired' || appearance.eyeState === 'drunk';
   const dilated = appearance.eyeState === 'dilated';
   const redEyes = appearance.eyeState === 'red';
+  const bored = appearance.status === 'aburrido';
+  const happy = appearance.status === 'contentillo';
   const animatedState = appearance.isAltered || appearance.isDrunk || appearance.smokeIntensity > 0;
 
   useEffect(() => {
@@ -65,15 +67,15 @@ export function MapoferAvatar({ appearance, compact = false }: Props) {
           <View style={styles.earRight} />
           <View style={styles.eyesRow}>
             <View style={[styles.eye, tired && styles.tiredEye, redEyes && styles.redEye]}>
-              <View style={[styles.pupil, dilated && styles.dilatedPupil]} />
+              <View style={[styles.pupil, dilated && styles.dilatedPupil, bored && styles.boredPupil]} />
             </View>
             <View style={[styles.eye, tired && styles.tiredEye, redEyes && styles.redEye]}>
-              <View style={[styles.pupil, dilated && styles.dilatedPupil]} />
+              <View style={[styles.pupil, dilated && styles.dilatedPupil, bored && styles.boredPupil]} />
             </View>
           </View>
           <View style={styles.noseRing} />
           <View style={styles.beard} />
-          <View style={[styles.mouth, cue === 'jaw' && styles.jawMouth]} />
+          <View style={[styles.mouth, cue === 'jaw' && styles.jawMouth, bored && styles.boredMouth, happy && styles.happyMouth]} />
           {appearance.isDrunk && <View style={styles.drunkBlush} />}
           {cue === 'tongue' && <View style={styles.tongue} />}
           {appearance.smokeIntensity > 0 && (
@@ -219,6 +221,7 @@ const styles = StyleSheet.create({
     height: 15,
     borderRadius: 8,
   },
+  boredPupil: { transform: [{ translateX: 5 }] },
   noseRing: {
     position: 'absolute',
     top: 87,
@@ -256,6 +259,8 @@ const styles = StyleSheet.create({
     left: 62,
     bottom: 28,
   },
+  boredMouth: { height: 8, backgroundColor: 'transparent', borderTopWidth: 3, borderTopColor: '#6f3e3d', borderRadius: 12 },
+  happyMouth: { height: 12, borderBottomLeftRadius: 13, borderBottomRightRadius: 13, backgroundColor: '#7f4547' },
   tongue: {
     position: 'absolute',
     bottom: 20,

@@ -37,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.5</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.6</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -65,7 +65,7 @@ export default function HomeScreen() {
           <ActionButton emoji="🌯" label="Comer" detail="elige menú" onPress={() => router.push('/food')} />
           <ActionButton emoji="🚿" label="Baño" detail="ducha y WC" onPress={() => router.push('/bathroom')} />
           <ActionButton emoji="🛋️" label="Dormir" detail="+ sueño" onPress={state.rest} />
-          <ActionButton emoji="📺" label="Anime" detail="- aburrimiento" onPress={state.watchAnime} />
+          <ActionButton emoji="📺" label="Ocio" detail="anime y más" onPress={() => router.push('/leisure')} />
         </View>
 
         <Text style={styles.sectionTitle}>Zonas de Poufer</Text>
@@ -94,6 +94,9 @@ export default function HomeScreen() {
           </Pressable>
           <Pressable onPress={() => router.push('/bathroom')} style={({ pressed }) => [styles.bathCard, pressed && styles.actionPressed]}>
             <Text style={styles.lockedEmoji}>🚿</Text><Text style={styles.lockedTitle}>Baño</Text><Text style={styles.bathReady}>ABIERTO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push('/leisure')} style={({ pressed }) => [styles.leisureCard, pressed && styles.actionPressed]}>
+            <Text style={styles.lockedEmoji}>🎮</Text><Text style={styles.lockedTitle}>Ocio</Text><Text style={styles.leisureReady}>ABIERTO</Text>
           </Pressable>
         </View>
 
@@ -297,6 +300,8 @@ const styles = StyleSheet.create({
   foodReady: { color: '#ffd26e', fontSize: 11, fontWeight: '900', marginTop: 2 },
   bathCard: { minWidth: '47%', flex: 1, backgroundColor: '#0e3446', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#45c8ff' },
   bathReady: { color: '#7edcff', fontSize: 11, fontWeight: '900', marginTop: 2 },
+  leisureCard: { minWidth: '47%', flex: 1, backgroundColor: '#302050', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#9d62ff' },
+  leisureReady: { color: '#c8a1ff', fontSize: 11, fontWeight: '900', marginTop: 2 },
   lockedEmoji: {
     fontSize: 24,
   },
