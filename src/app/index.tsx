@@ -37,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.6</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.7</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -97,6 +97,9 @@ export default function HomeScreen() {
           </Pressable>
           <Pressable onPress={() => router.push('/leisure')} style={({ pressed }) => [styles.leisureCard, pressed && styles.actionPressed]}>
             <Text style={styles.lockedEmoji}>🎮</Text><Text style={styles.lockedTitle}>Ocio</Text><Text style={styles.leisureReady}>ABIERTO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push('/shop')} style={({ pressed }) => [styles.shopCard, pressed && styles.actionPressed]}>
+            <Text style={styles.lockedEmoji}>🛍️</Text><Text style={styles.lockedTitle}>Tienda</Text><Text style={styles.shopReady}>ABIERTO</Text>
           </Pressable>
         </View>
 
@@ -302,6 +305,8 @@ const styles = StyleSheet.create({
   bathReady: { color: '#7edcff', fontSize: 11, fontWeight: '900', marginTop: 2 },
   leisureCard: { minWidth: '47%', flex: 1, backgroundColor: '#302050', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#9d62ff' },
   leisureReady: { color: '#c8a1ff', fontSize: 11, fontWeight: '900', marginTop: 2 },
+  shopCard: { minWidth: '47%', flex: 1, backgroundColor: '#173c62', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#42bcff' },
+  shopReady: { color: '#83d8ff', fontSize: 11, fontWeight: '900', marginTop: 2 },
   lockedEmoji: {
     fontSize: 24,
   },

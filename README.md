@@ -76,6 +76,16 @@ La primera base jugable incluye:
 - estado aburrido con ojos y boca diferenciados;
 - accesos futuros a tragaperras, CUPRA negro y ritmo techno claramente bloqueados.
 
+## Fase 0.7 — Economía
+
+- Mapocoins operativas con saldo inicial y migración de partidas anteriores;
+- precios configurables integrados en el catálogo genérico de objetos;
+- tienda para Farmacia, Barpofer, Comida y Fumar;
+- compras que descuentan saldo y añaden unidades al inventario persistente;
+- recompensa diaria con cooldown persistente;
+- historial saneado y limitado de movimientos económicos;
+- base preparada para recompensas de trabajos, minijuegos, misiones y logros.
+
 ## Fase 0.14 — POUFER se pone guapo (reservada)
 
 Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
@@ -153,4 +163,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.7: Mapocoins, tienda, precios y recompensas.
+Fase 0.8: trabajos de supermercado y almacén para ganar Mapocoins.

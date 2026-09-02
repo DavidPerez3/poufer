@@ -7,7 +7,7 @@ import { INITIAL_VITALS } from '../src/domain/mapofer';
 
 const initialState = (now: number): ItemUseState => ({
   ...INITIAL_VITALS,
-  inventory: { ...INITIAL_INVENTORY },
+  inventory: { ...INITIAL_INVENTORY, pill: 2, chicken: 1, joint: 2 },
   activeEffects: [],
   lastUpdatedAt: now,
 });
@@ -17,7 +17,7 @@ test('consumeItem consume inventario y crea un efecto activo genérico', () => {
   const outcome = consumeItem(initialState(now), 'pill', now);
 
   assert.equal(outcome.result, 'used');
-  assert.equal(outcome.state.inventory.pill, INITIAL_INVENTORY.pill - 1);
+  assert.equal(outcome.state.inventory.pill, 1);
   assert.equal(outcome.state.altered, 34);
   assert.equal(outcome.state.activeEffects.at(-1)?.itemId, 'pill');
   assert.ok(outcome.state.activeEffects.at(-1)!.expiresAt > now);
@@ -42,7 +42,7 @@ test('el porro aplica hambre y configuración visual sin lógica específica', (
 
   assert.equal(outcome.result, 'used');
   assert.equal(outcome.state.hunger, INITIAL_VITALS.hunger - 18);
-  assert.equal(outcome.state.inventory.joint, INITIAL_INVENTORY.joint - 1);
+  assert.equal(outcome.state.inventory.joint, 1);
   assert.equal(outcome.state.activeEffects.at(-1)?.animation, 'smoke');
   assert.equal(outcome.state.activeEffects.at(-1)?.redEyeIntensity, 2);
 });

@@ -5,6 +5,14 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 
 import { BASIC_ACTIONS, type BasicActionId } from '@/domain/gameBalance';
 import { performBathroomAction, type BathroomActionId, type CartoonPoop } from '@/domain/bathroom';
+import {
+  buyItem,
+  claimDailyReward,
+  STARTING_MAPOCOINS,
+  type DailyRewardResult,
+  type EconomyTransaction,
+  type PurchaseResult,
+} from '@/domain/economy';
 import { advanceNeeds, applyNeedEffects } from '@/domain/gameEngine';
 import { consumeItem } from '@/domain/itemEngine';
 import { performLeisureActivity, type LastLeisureActivity, type LeisureActivityId } from '@/domain/leisure';
@@ -17,7 +25,7 @@ import {
 } from '@/domain/items';
 import { INITIAL_VITALS, normalizeVitals, type MapoferVitals } from '@/domain/mapofer';
 
-const STORAGE_VERSION = 6;
+const STORAGE_VERSION = 7;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -77,6 +85,28 @@ function normalizeLastActivity(value: unknown): LastLeisureActivity | null {
   return { activityId: activity.activityId, completedAt: activity.completedAt! };
 }
 
+function normalizeTransactions(value: unknown): EconomyTransaction[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 12).flatMap((candidate): EconomyTransaction[] => {
+    if (!candidate || typeof candidate !== 'object') return [];
+    const transaction = candidate as Partial<EconomyTransaction>;
+    if (
+      typeof transaction.id !== 'string' ||
+      (transaction.kind !== 'purchase' && transaction.kind !== 'reward') ||
+      !Number.isFinite(transaction.amount) ||
+      typeof transaction.label !== 'string' ||
+      !Number.isFinite(transaction.createdAt)
+    ) return [];
+    return [{
+      id: transaction.id,
+      kind: transaction.kind,
+      amount: Math.trunc(transaction.amount!),
+      label: transaction.label.slice(0, 60),
+      createdAt: transaction.createdAt!,
+    }];
+  });
+}
+
 export type UseItemResult = 'used' | 'out-of-stock';
 export type BathroomResult = 'done' | 'not-needed' | 'nothing-to-clean';
 
@@ -87,6 +117,8 @@ type MapoferStore = MapoferVitals & {
   poops: CartoonPoop[];
   leisureSessions: number;
   lastLeisureActivity: LastLeisureActivity | null;
+  lastDailyRewardAt: number | null;
+  transactions: EconomyTransaction[];
   lastUpdatedAt: number;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
@@ -95,6 +127,8 @@ type MapoferStore = MapoferVitals & {
   useItem: (itemId: ItemId, now?: number) => UseItemResult;
   performBathroomAction: (action: BathroomActionId, now?: number) => BathroomResult;
   performActivity: (activityId: LeisureActivityId, now?: number) => void;
+  buyItem: (itemId: ItemId, now?: number) => PurchaseResult;
+  claimDailyReward: (now?: number) => DailyRewardResult;
   eat: () => void;
   shower: () => void;
   rest: () => void;
@@ -108,12 +142,14 @@ export const useMapoferStore = create<MapoferStore>()(
   persist(
     (set, get) => ({
       ...INITIAL_VITALS,
-      mapocoins: 0,
+      mapocoins: STARTING_MAPOCOINS,
       inventory: INITIAL_INVENTORY,
       activeEffects: [],
       poops: [],
       leisureSessions: 0,
       lastLeisureActivity: null,
+      lastDailyRewardAt: null,
+      transactions: [],
       lastUpdatedAt: touchTime(),
       hasHydrated: false,
 
@@ -169,6 +205,26 @@ export const useMapoferStore = create<MapoferStore>()(
           lastLeisureActivity: { activityId, completedAt: now },
         })),
 
+      buyItem: (itemId, now = touchTime()) => {
+        let result: PurchaseResult = 'not-for-sale';
+        set((state) => {
+          const outcome = buyItem(state, itemId, now);
+          result = outcome.result;
+          return outcome.state;
+        });
+        return result;
+      },
+
+      claimDailyReward: (now = touchTime()) => {
+        let result: DailyRewardResult = 'cooldown';
+        set((state) => {
+          const outcome = claimDailyReward(state, now);
+          result = outcome.result;
+          return outcome.state;
+        });
+        return result;
+      },
+
       eat: () => get().performBasicAction('eat'),
       shower: () => get().performBasicAction('shower'),
       rest: () => get().performBasicAction('rest'),
@@ -177,12 +233,14 @@ export const useMapoferStore = create<MapoferStore>()(
       reset: () =>
         set({
           ...INITIAL_VITALS,
-          mapocoins: 0,
+          mapocoins: STARTING_MAPOCOINS,
           inventory: INITIAL_INVENTORY,
           activeEffects: [],
           poops: [],
           leisureSessions: 0,
           lastLeisureActivity: null,
+          lastDailyRewardAt: null,
+          transactions: [],
           lastUpdatedAt: touchTime(),
         }),
     }),
@@ -190,7 +248,13 @@ export const useMapoferStore = create<MapoferStore>()(
       name: 'poufer-state-v1',
       version: STORAGE_VERSION,
       storage: createJSONStorage(() => (isStaticWebRender ? staticRenderStorage : AsyncStorage)),
-      migrate: (persistedState) => persistedState as MapoferStore,
+      migrate: (persistedState, version) => {
+        const saved = persistedState as Partial<MapoferStore>;
+        if (version < 7) {
+          return { ...saved, mapocoins: Math.max(saved.mapocoins ?? 0, STARTING_MAPOCOINS) } as MapoferStore;
+        }
+        return saved as MapoferStore;
+      },
       partialize: (state) => ({
         hunger: state.hunger,
         hygiene: state.hygiene,
@@ -210,6 +274,8 @@ export const useMapoferStore = create<MapoferStore>()(
         poops: state.poops,
         leisureSessions: state.leisureSessions,
         lastLeisureActivity: state.lastLeisureActivity,
+        lastDailyRewardAt: state.lastDailyRewardAt,
+        transactions: state.transactions,
         lastUpdatedAt: state.lastUpdatedAt,
       }),
       merge: (persisted, current) => {
@@ -248,6 +314,10 @@ export const useMapoferStore = create<MapoferStore>()(
             ? Math.max(0, Math.floor(saved!.leisureSessions!))
             : 0,
           lastLeisureActivity: normalizeLastActivity(saved?.lastLeisureActivity),
+          lastDailyRewardAt: Number.isFinite(saved?.lastDailyRewardAt)
+            ? Math.max(0, saved!.lastDailyRewardAt!)
+            : null,
+          transactions: normalizeTransactions(saved?.transactions),
           lastUpdatedAt: Number.isFinite(saved?.lastUpdatedAt)
             ? saved!.lastUpdatedAt!
             : current.lastUpdatedAt,
