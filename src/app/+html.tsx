@@ -18,7 +18,27 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="icon" href={`${base}/icon.svg`} />
         <link rel="apple-touch-icon" href={`${base}/icons/apple-touch-icon.png`} />
         <ScrollViewStyleReset />
-        <style dangerouslySetInnerHTML={{ __html: `body { background: #10081f; overscroll-behavior-y: none; }` }} />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              html, body, #root {
+                width: 100%;
+                height: 100%;
+                min-height: 100%;
+                margin: 0;
+                overflow: hidden;
+                background: #10081f;
+              }
+              body {
+                overscroll-behavior: none;
+                touch-action: manipulation;
+              }
+              #root {
+                min-height: 100dvh;
+              }
+            `,
+          }}
+        />
       </head>
       <body>{children}</body>
     </html>
