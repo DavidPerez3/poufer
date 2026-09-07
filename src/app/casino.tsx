@@ -85,7 +85,8 @@ function SlotsMachine({ result }: { result: Extract<CasinoResult, { gameId: 'slo
 
 function RouletteMachine({ result }: { result: Extract<CasinoResult, { gameId: 'roulette' }> | null }) {
   const colorStyle = result?.color === 'red' ? styles.red : result?.color === 'black' ? styles.black : styles.green;
-  return <><Text style={styles.neon}>RULETA POUFER</Text><View style={styles.wheel}><Text style={styles.wheelMarks}>0 · 7 · 18 · 23 · 36</Text><View style={[styles.ball, result && colorStyle]}><Text style={styles.ballText}>{result?.number ?? '?'}</Text></View></View><Text style={styles.machineInfo}>{result ? `${result.color.toUpperCase()} · ${result.won ? 'PREMIO x2' : 'PIERDES'}` : 'EL CERO SIEMPRE GANA LA CASA'}</Text></>;
+  const colorLabel = result?.color === 'red' ? 'ROJO' : result?.color === 'black' ? 'NEGRO' : 'VERDE';
+  return <><Text style={styles.neon}>RULETA POUFER</Text><View style={styles.wheel}><Text style={styles.wheelMarks}>0 · 7 · 18 · 23 · 36</Text><View style={[styles.ball, result && colorStyle]}><Text style={styles.ballText}>{result?.number ?? '?'}</Text></View></View><Text style={styles.machineInfo}>{result ? `${colorLabel} · ${result.won ? 'PREMIO x2' : 'PIERDES'}` : 'EL CERO SIEMPRE GANA LA CASA'}</Text></>;
 }
 
 function CasinoStat({ label, value }: { label: string; value: string | number }) { return <View style={styles.stat}><Text style={styles.statLabel}>{label}</Text><Text style={styles.statValue}>{value}</Text></View>; }
