@@ -47,7 +47,7 @@ export default function LeisureScreen() {
       </View>)}</View>
       <View style={styles.history}><Text style={styles.historyTitle}>SESIONES DE OCIO · {state.leisureSessions}</Text><Text style={styles.historyText}>{lastActivity ? `Última: ${lastActivity.name}` : 'Mapofer todavía no ha hecho nada productivamente improductivo.'}</Text></View>
       <Text style={styles.section}>Próximamente</Text>
-      <View style={styles.lockedRow}><LockedActivity icon="🎰" label="Tragaperras" phase="0.9" /><LockedActivity icon="🚗" label="CUPRA negro" phase="0.10" /><LockedActivity icon="🎵" label="Ritmo techno" phase="0.11" /></View>
+      <View style={styles.lockedRow}><LockedActivity icon="🚗" label="CUPRA negro" phase="0.10" /><LockedActivity icon="🎵" label="Ritmo techno" phase="0.11" /></View>
     </ScrollView>
   </SafeAreaView></>;
 }

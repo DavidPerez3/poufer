@@ -96,6 +96,16 @@ La primera base jugable incluye:
 - desgaste de energía, hambre, sueño, higiene, sudor y aburrimiento;
 - turnos, récords y último resultado persistentes.
 
+## Fase 0.9 — Ludopatía
+
+- casino ficticio sin dinero real ni compras integradas;
+- tragaperras con símbolos ponderados, parejas, triples y premio de tres sietes;
+- ruleta con rojo, negro, par, impar y cero de la casa;
+- apuestas limitadas a 10, 25 o 50 Mapocoins;
+- validación de saldo y liquidación económica atómica;
+- contador de partidas, victorias, balance y último resultado persistentes;
+- probabilidades y premios desacoplados de la interfaz.
+
 ## Fase 0.14 — POUFER se pone guapo (reservada)
 
 Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
@@ -173,4 +183,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.9: tragaperras y ruleta exclusivamente con Mapocoins del juego.
+Fase 0.10: conducción lateral con el CUPRA negro de Mapofer.

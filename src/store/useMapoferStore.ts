@@ -6,6 +6,15 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 import { BASIC_ACTIONS, type BasicActionId } from '@/domain/gameBalance';
 import { performBathroomAction, type BathroomActionId, type CartoonPoop } from '@/domain/bathroom';
 import {
+  playRoulette,
+  playSlots,
+  type CasinoPlayResult,
+  type CasinoResult,
+  type CasinoWager,
+  type RouletteBet,
+  type SlotSymbol,
+} from '@/domain/casino';
+import {
   buyItem,
   claimDailyReward,
   STARTING_MAPOCOINS,
@@ -32,7 +41,7 @@ import {
   type WorkResult,
 } from '@/domain/work';
 
-const STORAGE_VERSION = 8;
+const STORAGE_VERSION = 9;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -99,7 +108,7 @@ function normalizeTransactions(value: unknown): EconomyTransaction[] {
     const transaction = candidate as Partial<EconomyTransaction>;
     if (
       typeof transaction.id !== 'string' ||
-      (transaction.kind !== 'purchase' && transaction.kind !== 'reward') ||
+      (transaction.kind !== 'purchase' && transaction.kind !== 'reward' && transaction.kind !== 'casino') ||
       !Number.isFinite(transaction.amount) ||
       typeof transaction.label !== 'string' ||
       !Number.isFinite(transaction.createdAt)
@@ -112,6 +121,35 @@ function normalizeTransactions(value: unknown): EconomyTransaction[] {
       createdAt: transaction.createdAt!,
     }];
   });
+}
+
+const SLOT_SYMBOLS: readonly SlotSymbol[] = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+
+function normalizeCasinoResult(value: unknown): CasinoResult | null {
+  if (!value || typeof value !== 'object') return null;
+  const result = value as Partial<CasinoResult>;
+  if (
+    (result.gameId !== 'slots' && result.gameId !== 'roulette') ||
+    (result.wager !== 10 && result.wager !== 25 && result.wager !== 50) ||
+    !Number.isFinite(result.payout) || !Number.isFinite(result.net) ||
+    typeof result.won !== 'boolean' || !Number.isFinite(result.playedAt)
+  ) return null;
+
+  const base = {
+    wager: result.wager,
+    payout: Math.max(0, Math.floor(result.payout!)),
+    net: Math.trunc(result.net!),
+    won: result.won,
+    playedAt: result.playedAt!,
+  };
+  if (result.gameId === 'slots') {
+    const slot = result as Partial<Extract<CasinoResult, { gameId: 'slots' }>>;
+    if (!Array.isArray(slot.symbols) || slot.symbols.length !== 3 || !slot.symbols.every((symbol) => SLOT_SYMBOLS.includes(symbol))) return null;
+    return { ...base, gameId: 'slots', symbols: [slot.symbols[0], slot.symbols[1], slot.symbols[2]], multiplier: Number.isFinite(slot.multiplier) ? Math.max(0, slot.multiplier!) : 0 };
+  }
+  const roulette = result as Partial<Extract<CasinoResult, { gameId: 'roulette' }>>;
+  if (!Number.isFinite(roulette.number) || !roulette.bet || !['red', 'black', 'even', 'odd'].includes(roulette.bet) || !roulette.color || !['green', 'red', 'black'].includes(roulette.color)) return null;
+  return { ...base, gameId: 'roulette', number: Math.max(0, Math.min(36, Math.floor(roulette.number!))), bet: roulette.bet, color: roulette.color };
 }
 
 function normalizeWorkResult(value: unknown): WorkResult | null {
@@ -149,6 +187,10 @@ type MapoferStore = MapoferVitals & {
   workShifts: number;
   workBestScores: Record<WorkJobId, number>;
   lastWorkResult: WorkResult | null;
+  casinoPlays: number;
+  casinoWins: number;
+  casinoNet: number;
+  lastCasinoResult: CasinoResult | null;
   lastUpdatedAt: number;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
@@ -160,6 +202,8 @@ type MapoferStore = MapoferVitals & {
   buyItem: (itemId: ItemId, now?: number) => PurchaseResult;
   claimDailyReward: (now?: number) => DailyRewardResult;
   completeWorkShift: (jobId: WorkJobId, performance: WorkPerformance, now?: number) => WorkResult;
+  playCasinoSlots: (wager: CasinoWager, now?: number) => CasinoPlayResult;
+  playCasinoRoulette: (wager: CasinoWager, bet: RouletteBet, now?: number) => CasinoPlayResult;
   eat: () => void;
   shower: () => void;
   rest: () => void;
@@ -184,6 +228,10 @@ export const useMapoferStore = create<MapoferStore>()(
       workShifts: 0,
       workBestScores: { cashier: 0, forklift: 0 },
       lastWorkResult: null,
+      casinoPlays: 0,
+      casinoWins: 0,
+      casinoNet: 0,
+      lastCasinoResult: null,
       lastUpdatedAt: touchTime(),
       hasHydrated: false,
 
@@ -277,6 +325,40 @@ export const useMapoferStore = create<MapoferStore>()(
         return result;
       },
 
+      playCasinoSlots: (wager, now = touchTime()) => {
+        let result: CasinoPlayResult = { result: 'invalid-wager', state: get(), game: null };
+        set((state) => {
+          const outcome = playSlots(state, wager, now);
+          result = outcome;
+          if (outcome.result !== 'played') return state;
+          return {
+            ...outcome.state,
+            casinoPlays: state.casinoPlays + 1,
+            casinoWins: state.casinoWins + (outcome.game.won ? 1 : 0),
+            casinoNet: state.casinoNet + outcome.game.net,
+            lastCasinoResult: outcome.game,
+          };
+        });
+        return result;
+      },
+
+      playCasinoRoulette: (wager, bet, now = touchTime()) => {
+        let result: CasinoPlayResult = { result: 'invalid-wager', state: get(), game: null };
+        set((state) => {
+          const outcome = playRoulette(state, wager, bet, now);
+          result = outcome;
+          if (outcome.result !== 'played') return state;
+          return {
+            ...outcome.state,
+            casinoPlays: state.casinoPlays + 1,
+            casinoWins: state.casinoWins + (outcome.game.won ? 1 : 0),
+            casinoNet: state.casinoNet + outcome.game.net,
+            lastCasinoResult: outcome.game,
+          };
+        });
+        return result;
+      },
+
       eat: () => get().performBasicAction('eat'),
       shower: () => get().performBasicAction('shower'),
       rest: () => get().performBasicAction('rest'),
@@ -296,6 +378,10 @@ export const useMapoferStore = create<MapoferStore>()(
           workShifts: 0,
           workBestScores: { cashier: 0, forklift: 0 },
           lastWorkResult: null,
+          casinoPlays: 0,
+          casinoWins: 0,
+          casinoNet: 0,
+          lastCasinoResult: null,
           lastUpdatedAt: touchTime(),
         }),
     }),
@@ -334,6 +420,10 @@ export const useMapoferStore = create<MapoferStore>()(
         workShifts: state.workShifts,
         workBestScores: state.workBestScores,
         lastWorkResult: state.lastWorkResult,
+        casinoPlays: state.casinoPlays,
+        casinoWins: state.casinoWins,
+        casinoNet: state.casinoNet,
+        lastCasinoResult: state.lastCasinoResult,
         lastUpdatedAt: state.lastUpdatedAt,
       }),
       merge: (persisted, current) => {
@@ -382,6 +472,10 @@ export const useMapoferStore = create<MapoferStore>()(
             forklift: Number.isFinite(saved?.workBestScores?.forklift) ? Math.max(0, Math.floor(saved!.workBestScores!.forklift)) : 0,
           },
           lastWorkResult: normalizeWorkResult(saved?.lastWorkResult),
+          casinoPlays: Number.isFinite(saved?.casinoPlays) ? Math.max(0, Math.floor(saved!.casinoPlays!)) : 0,
+          casinoWins: Number.isFinite(saved?.casinoWins) ? Math.max(0, Math.floor(saved!.casinoWins!)) : 0,
+          casinoNet: Number.isFinite(saved?.casinoNet) ? Math.trunc(saved!.casinoNet!) : 0,
+          lastCasinoResult: normalizeCasinoResult(saved?.lastCasinoResult),
           lastUpdatedAt: Number.isFinite(saved?.lastUpdatedAt)
             ? saved!.lastUpdatedAt!
             : current.lastUpdatedAt,

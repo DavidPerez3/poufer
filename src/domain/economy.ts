@@ -5,7 +5,7 @@ export const DAILY_REWARD_MAPOCOINS = 80;
 export const DAILY_REWARD_COOLDOWN_MS = 20 * 60 * 60 * 1_000;
 export const MAX_TRANSACTION_HISTORY = 12;
 
-export type EconomyTransactionKind = 'purchase' | 'reward';
+export type EconomyTransactionKind = 'purchase' | 'reward' | 'casino';
 
 export type EconomyTransaction = {
   id: string;
