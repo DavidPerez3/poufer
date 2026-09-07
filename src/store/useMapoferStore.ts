@@ -24,8 +24,15 @@ import {
   type ItemId,
 } from '@/domain/items';
 import { INITIAL_VITALS, normalizeVitals, type MapoferVitals } from '@/domain/mapofer';
+import {
+  calculateWorkResult,
+  completeWorkShift,
+  type WorkJobId,
+  type WorkPerformance,
+  type WorkResult,
+} from '@/domain/work';
 
-const STORAGE_VERSION = 7;
+const STORAGE_VERSION = 8;
 const isStaticWebRender = Platform.OS === 'web' && typeof window === 'undefined';
 const staticRenderStorage: StateStorage = {
   getItem: () => null,
@@ -107,6 +114,26 @@ function normalizeTransactions(value: unknown): EconomyTransaction[] {
   });
 }
 
+function normalizeWorkResult(value: unknown): WorkResult | null {
+  if (!value || typeof value !== 'object') return null;
+  const result = value as Partial<WorkResult>;
+  if (
+    (result.jobId !== 'cashier' && result.jobId !== 'forklift') ||
+    !Number.isFinite(result.correct) || !Number.isFinite(result.mistakes) ||
+    !Number.isFinite(result.elapsedSeconds) || !Number.isFinite(result.score) ||
+    !Number.isFinite(result.reward) || !Number.isFinite(result.completedAt)
+  ) return null;
+  return {
+    jobId: result.jobId,
+    correct: Math.max(0, Math.floor(result.correct!)),
+    mistakes: Math.max(0, Math.floor(result.mistakes!)),
+    elapsedSeconds: Math.max(1, Math.floor(result.elapsedSeconds!)),
+    score: Math.max(0, Math.floor(result.score!)),
+    reward: Math.max(0, Math.floor(result.reward!)),
+    completedAt: result.completedAt!,
+  };
+}
+
 export type UseItemResult = 'used' | 'out-of-stock';
 export type BathroomResult = 'done' | 'not-needed' | 'nothing-to-clean';
 
@@ -119,6 +146,9 @@ type MapoferStore = MapoferVitals & {
   lastLeisureActivity: LastLeisureActivity | null;
   lastDailyRewardAt: number | null;
   transactions: EconomyTransaction[];
+  workShifts: number;
+  workBestScores: Record<WorkJobId, number>;
+  lastWorkResult: WorkResult | null;
   lastUpdatedAt: number;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
@@ -129,6 +159,7 @@ type MapoferStore = MapoferVitals & {
   performActivity: (activityId: LeisureActivityId, now?: number) => void;
   buyItem: (itemId: ItemId, now?: number) => PurchaseResult;
   claimDailyReward: (now?: number) => DailyRewardResult;
+  completeWorkShift: (jobId: WorkJobId, performance: WorkPerformance, now?: number) => WorkResult;
   eat: () => void;
   shower: () => void;
   rest: () => void;
@@ -150,6 +181,9 @@ export const useMapoferStore = create<MapoferStore>()(
       lastLeisureActivity: null,
       lastDailyRewardAt: null,
       transactions: [],
+      workShifts: 0,
+      workBestScores: { cashier: 0, forklift: 0 },
+      lastWorkResult: null,
       lastUpdatedAt: touchTime(),
       hasHydrated: false,
 
@@ -225,6 +259,24 @@ export const useMapoferStore = create<MapoferStore>()(
         return result;
       },
 
+      completeWorkShift: (jobId, performance, now = touchTime()) => {
+        let result = calculateWorkResult(jobId, performance, now);
+        set((state) => {
+          const outcome = completeWorkShift(state, jobId, performance, now, state.poops.length * 0.4);
+          result = outcome.result;
+          return {
+            ...outcome.state,
+            workShifts: state.workShifts + 1,
+            workBestScores: {
+              ...state.workBestScores,
+              [jobId]: Math.max(state.workBestScores[jobId], outcome.result.score),
+            },
+            lastWorkResult: outcome.result,
+          };
+        });
+        return result;
+      },
+
       eat: () => get().performBasicAction('eat'),
       shower: () => get().performBasicAction('shower'),
       rest: () => get().performBasicAction('rest'),
@@ -241,6 +293,9 @@ export const useMapoferStore = create<MapoferStore>()(
           lastLeisureActivity: null,
           lastDailyRewardAt: null,
           transactions: [],
+          workShifts: 0,
+          workBestScores: { cashier: 0, forklift: 0 },
+          lastWorkResult: null,
           lastUpdatedAt: touchTime(),
         }),
     }),
@@ -276,6 +331,9 @@ export const useMapoferStore = create<MapoferStore>()(
         lastLeisureActivity: state.lastLeisureActivity,
         lastDailyRewardAt: state.lastDailyRewardAt,
         transactions: state.transactions,
+        workShifts: state.workShifts,
+        workBestScores: state.workBestScores,
+        lastWorkResult: state.lastWorkResult,
         lastUpdatedAt: state.lastUpdatedAt,
       }),
       merge: (persisted, current) => {
@@ -318,6 +376,12 @@ export const useMapoferStore = create<MapoferStore>()(
             ? Math.max(0, saved!.lastDailyRewardAt!)
             : null,
           transactions: normalizeTransactions(saved?.transactions),
+          workShifts: Number.isFinite(saved?.workShifts) ? Math.max(0, Math.floor(saved!.workShifts!)) : 0,
+          workBestScores: {
+            cashier: Number.isFinite(saved?.workBestScores?.cashier) ? Math.max(0, Math.floor(saved!.workBestScores!.cashier)) : 0,
+            forklift: Number.isFinite(saved?.workBestScores?.forklift) ? Math.max(0, Math.floor(saved!.workBestScores!.forklift)) : 0,
+          },
+          lastWorkResult: normalizeWorkResult(saved?.lastWorkResult),
           lastUpdatedAt: Number.isFinite(saved?.lastUpdatedAt)
             ? saved!.lastUpdatedAt!
             : current.lastUpdatedAt,

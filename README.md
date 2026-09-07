@@ -86,6 +86,16 @@ La primera base jugable incluye:
 - historial saneado y limitado de movimientos económicos;
 - base preparada para recompensas de trabajos, minijuegos, misiones y logros.
 
+## Fase 0.8 — Currar
+
+- dos trabajos jugables: cajero de supermercado y carretillero de almacén;
+- caja rápida con productos, precios, aciertos y errores;
+- maniobras de carretilla para recoger, transportar y soltar tres palés;
+- puntuación y sueldo calculados por aciertos, fallos y velocidad;
+- recompensas conectadas al motor genérico de Mapocoins;
+- desgaste de energía, hambre, sueño, higiene, sudor y aburrimiento;
+- turnos, récords y último resultado persistentes.
+
 ## Fase 0.14 — POUFER se pone guapo (reservada)
 
 Overhaul visual completo antes de 1.0: personaje chibi definitivo de cuerpo entero,
@@ -163,4 +173,4 @@ public/
 
 ## Siguiente fase
 
-Fase 0.8: trabajos de supermercado y almacén para ganar Mapocoins.
+Fase 0.9: tragaperras y ruleta exclusivamente con Mapocoins del juego.

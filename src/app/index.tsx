@@ -37,7 +37,7 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.logo}>POUFER</Text>
-            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.7</Text>
+            <Text style={styles.subtitle}>Cuida a Mapofer · fase 0.8</Text>
           </View>
           <View style={styles.coins}>
             <Text style={styles.coinIcon}>🪙</Text>
@@ -100,6 +100,9 @@ export default function HomeScreen() {
           </Pressable>
           <Pressable onPress={() => router.push('/shop')} style={({ pressed }) => [styles.shopCard, pressed && styles.actionPressed]}>
             <Text style={styles.lockedEmoji}>🛍️</Text><Text style={styles.lockedTitle}>Tienda</Text><Text style={styles.shopReady}>ABIERTO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push('/work')} style={({ pressed }) => [styles.workCard, pressed && styles.actionPressed]}>
+            <Text style={styles.lockedEmoji}>🦺</Text><Text style={styles.lockedTitle}>Currar</Text><Text style={styles.workReady}>ABIERTO</Text>
           </Pressable>
         </View>
 
@@ -307,6 +310,8 @@ const styles = StyleSheet.create({
   leisureReady: { color: '#c8a1ff', fontSize: 11, fontWeight: '900', marginTop: 2 },
   shopCard: { minWidth: '47%', flex: 1, backgroundColor: '#173c62', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#42bcff' },
   shopReady: { color: '#83d8ff', fontSize: 11, fontWeight: '900', marginTop: 2 },
+  workCard: { minWidth: '47%', flex: 1, backgroundColor: '#3c3019', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#d09828' },
+  workReady: { color: '#ffd45d', fontSize: 11, fontWeight: '900', marginTop: 2 },
   lockedEmoji: {
     fontSize: 24,
   },

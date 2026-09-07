@@ -10,6 +10,7 @@ const requiredFiles = [
   'dist/bathroom.html',
   'dist/leisure.html',
   'dist/shop.html',
+  'dist/work.html',
   'dist/manifest.webmanifest',
   'dist/sw.js',
   'dist/icons/icon-192.png',
@@ -31,7 +32,7 @@ if (!html.includes('href="/poufer/manifest.webmanifest"')) {
   throw new Error('El manifest no está enlazado bajo /poufer/.');
 }
 
-for (const route of ['pharmacy', 'bar', 'smoking', 'food', 'bathroom', 'leisure', 'shop']) {
+for (const route of ['pharmacy', 'bar', 'smoking', 'food', 'bathroom', 'leisure', 'shop', 'work']) {
   const routeHtml = await readFile(`dist/${route}.html`, 'utf8');
   if (!routeHtml.includes('src="/poufer/_expo/')) {
     throw new Error(`La ruta /${route} no utiliza el base path /poufer/.`);
